@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { Note, Todo, Expense, Budget, Habit, Event, Reminder } from '../types';
+import { Note, Todo, Expense, Budget, Habit, Event, Reminder, Goal, PomodoroSession, TimeEntry, JournalEntry, Achievement, AchievementType, DailyChallenge } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 interface AppState {
@@ -10,6 +10,12 @@ interface AppState {
   habits: Habit[];
   events: Event[];
   reminders: Reminder[];
+  goals: Goal[];
+  pomodoroSessions: PomodoroSession[];
+  timeEntries: TimeEntry[];
+  journalEntries: JournalEntry[];
+  achievements: Achievement[];
+  dailyChallenges: DailyChallenge[];
 }
 
 type Action =
@@ -36,6 +42,27 @@ type Action =
   | { type: 'DELETE_REMINDER'; payload: string }
   | { type: 'DISMISS_REMINDER'; payload: string }
   | { type: 'SNOOZE_REMINDER'; payload: { id: string; until: Date } }
+  // Goals
+  | { type: 'ADD_GOAL'; payload: Omit<Goal, 'id' | 'createdAt' | 'updatedAt'> }
+  | { type: 'UPDATE_GOAL'; payload: Goal }
+  | { type: 'DELETE_GOAL'; payload: string }
+  // Pomodoro
+  | { type: 'ADD_POMODORO_SESSION'; payload: Omit<PomodoroSession, 'id'> }
+  | { type: 'DELETE_POMODORO_SESSION'; payload: string }
+  // Time Entries
+  | { type: 'ADD_TIME_ENTRY'; payload: Omit<TimeEntry, 'id'> }
+  | { type: 'UPDATE_TIME_ENTRY'; payload: TimeEntry }
+  | { type: 'DELETE_TIME_ENTRY'; payload: string }
+  // Journal
+  | { type: 'ADD_JOURNAL_ENTRY'; payload: Omit<JournalEntry, 'id' | 'createdAt'> }
+  | { type: 'UPDATE_JOURNAL_ENTRY'; payload: JournalEntry }
+  | { type: 'DELETE_JOURNAL_ENTRY'; payload: string }
+  // Achievements
+  | { type: 'UNLOCK_ACHIEVEMENT'; payload: AchievementType }
+  // Daily Challenges
+  | { type: 'SET_DAILY_CHALLENGES'; payload: DailyChallenge[] }
+  | { type: 'UPDATE_CHALLENGE_PROGRESS'; payload: { id: string; currentCount: number } }
+  | { type: 'COMPLETE_CHALLENGE'; payload: string }
   | { type: 'LOAD_STATE'; payload: AppState };
 
 // Generate sample dates
@@ -309,6 +336,75 @@ const sampleReminders = [
   },
 ];
 
+const sampleGoals: Goal[] = [
+  {
+    id: 'goal-1',
+    title: 'Learn React Advanced Patterns',
+    description: 'Master advanced React patterns including compound components, render props, and hooks.',
+    category: 'career',
+    targetDate: new Date(Date.now() + 30 * 86400000),
+    progress: 40,
+    milestones: [
+      { id: 'ms-1', title: 'Complete hooks tutorial', completed: true },
+      { id: 'ms-2', title: 'Build a compound component', completed: true },
+      { id: 'ms-3', title: 'Master render props', completed: false },
+      { id: 'ms-4', title: 'Build a real project', completed: false },
+    ],
+    linkedTaskIds: ['todo-3'],
+    linkedHabitIds: ['habit-2'],
+    createdAt: new Date(Date.now() - 14 * 86400000),
+    updatedAt: yesterday,
+  },
+  {
+    id: 'goal-2',
+    title: 'Get Fit This Quarter',
+    description: 'Exercise regularly and improve overall health.',
+    category: 'health',
+    targetDate: new Date(Date.now() + 60 * 86400000),
+    progress: 60,
+    milestones: [
+      { id: 'ms-5', title: 'Exercise 5 days/week for 2 weeks', completed: true },
+      { id: 'ms-6', title: 'Run 5K without stopping', completed: true },
+      { id: 'ms-7', title: 'Reach target weight', completed: true },
+      { id: 'ms-8', title: 'Maintain for 1 month', completed: false },
+    ],
+    linkedTaskIds: [],
+    linkedHabitIds: ['habit-1', 'habit-3'],
+    createdAt: new Date(Date.now() - 21 * 86400000),
+    updatedAt: twoDaysAgo,
+  },
+];
+
+const sampleJournalEntries: JournalEntry[] = [
+  {
+    id: 'journal-1',
+    content: 'Had a really productive day today. Finished the project proposal and got great feedback from the team. Feeling motivated to keep going!',
+    moodRating: 5,
+    gratitude: ['Great team collaboration', 'Good weather for a walk'],
+    date: yesterday,
+    createdAt: yesterday,
+  },
+  {
+    id: 'journal-2',
+    content: 'A bit tired today but still managed to get through my tasks. Need to focus on getting more sleep.',
+    moodRating: 3,
+    gratitude: ['Healthy lunch', 'Finished reading a chapter'],
+    date: twoDaysAgo,
+    createdAt: twoDaysAgo,
+  },
+];
+
+const defaultAchievements: Achievement[] = [
+  { id: 'ach-1', type: 'streak_master', title: 'Streak Master', description: 'Maintain a 30-day habit streak', criteria: '30-day streak on any habit', icon: '🔥', unlockedAt: null },
+  { id: 'ach-2', type: 'task_crusher', title: 'Task Crusher', description: 'Complete 100 tasks', criteria: 'Complete 100 total tasks', icon: '💪', unlockedAt: null },
+  { id: 'ach-3', type: 'budget_pro', title: 'Budget Pro', description: 'Stay within budget for 3 months', criteria: 'Under budget for 3 consecutive months', icon: '💰', unlockedAt: null },
+  { id: 'ach-4', type: 'early_bird', title: 'Early Bird', description: 'Complete 5 tasks before 9 AM', criteria: '5 tasks completed before 9 AM', icon: '🌅', unlockedAt: null },
+  { id: 'ach-5', type: 'note_taker', title: 'Note Taker', description: 'Create 50 notes', criteria: 'Create 50 total notes', icon: '📝', unlockedAt: null },
+  { id: 'ach-6', type: 'focus_champion', title: 'Focus Champion', description: 'Complete 50 Pomodoro sessions', criteria: '50 completed focus sessions', icon: '🎯', unlockedAt: null },
+  { id: 'ach-7', type: 'goal_setter', title: 'Goal Setter', description: 'Complete 5 goals', criteria: '5 goals at 100% progress', icon: '🏆', unlockedAt: null },
+  { id: 'ach-8', type: 'journal_keeper', title: 'Journal Keeper', description: 'Write journal entries for 30 days', criteria: '30 journal entries', icon: '📓', unlockedAt: null },
+];
+
 const initialState: AppState = {
   notes: sampleNotes,
   todos: sampleTodos,
@@ -317,6 +413,12 @@ const initialState: AppState = {
   habits: sampleHabits,
   events: sampleEvents,
   reminders: sampleReminders,
+  goals: sampleGoals,
+  pomodoroSessions: [],
+  timeEntries: [],
+  journalEntries: sampleJournalEntries,
+  achievements: defaultAchievements,
+  dailyChallenges: [],
 };
 
 function calculateStreak(completedDates: string[]): number {
@@ -534,6 +636,119 @@ function appReducer(state: AppState, action: Action): AppState {
             : reminder
         ),
       };
+
+    // --- Goals ---
+    case 'ADD_GOAL':
+      return {
+        ...state,
+        goals: [
+          ...state.goals,
+          { ...action.payload, id: uuidv4(), createdAt: new Date(), updatedAt: new Date() },
+        ],
+      };
+    case 'UPDATE_GOAL':
+      return {
+        ...state,
+        goals: state.goals.map((g) =>
+          g.id === action.payload.id ? { ...action.payload, updatedAt: new Date() } : g
+        ),
+      };
+    case 'DELETE_GOAL':
+      return {
+        ...state,
+        goals: state.goals.filter((g) => g.id !== action.payload),
+      };
+
+    // --- Pomodoro ---
+    case 'ADD_POMODORO_SESSION':
+      return {
+        ...state,
+        pomodoroSessions: [
+          ...state.pomodoroSessions,
+          { ...action.payload, id: uuidv4() },
+        ],
+      };
+    case 'DELETE_POMODORO_SESSION':
+      return {
+        ...state,
+        pomodoroSessions: state.pomodoroSessions.filter((s) => s.id !== action.payload),
+      };
+
+    // --- Time Entries ---
+    case 'ADD_TIME_ENTRY':
+      return {
+        ...state,
+        timeEntries: [
+          ...state.timeEntries,
+          { ...action.payload, id: uuidv4() },
+        ],
+      };
+    case 'UPDATE_TIME_ENTRY':
+      return {
+        ...state,
+        timeEntries: state.timeEntries.map((t) =>
+          t.id === action.payload.id ? action.payload : t
+        ),
+      };
+    case 'DELETE_TIME_ENTRY':
+      return {
+        ...state,
+        timeEntries: state.timeEntries.filter((t) => t.id !== action.payload),
+      };
+
+    // --- Journal ---
+    case 'ADD_JOURNAL_ENTRY':
+      return {
+        ...state,
+        journalEntries: [
+          ...state.journalEntries,
+          { ...action.payload, id: uuidv4(), createdAt: new Date() },
+        ],
+      };
+    case 'UPDATE_JOURNAL_ENTRY':
+      return {
+        ...state,
+        journalEntries: state.journalEntries.map((j) =>
+          j.id === action.payload.id ? action.payload : j
+        ),
+      };
+    case 'DELETE_JOURNAL_ENTRY':
+      return {
+        ...state,
+        journalEntries: state.journalEntries.filter((j) => j.id !== action.payload),
+      };
+
+    // --- Achievements ---
+    case 'UNLOCK_ACHIEVEMENT':
+      return {
+        ...state,
+        achievements: state.achievements.map((a) =>
+          a.type === action.payload && !a.unlockedAt
+            ? { ...a, unlockedAt: new Date() }
+            : a
+        ),
+      };
+
+    // --- Daily Challenges ---
+    case 'SET_DAILY_CHALLENGES':
+      return { ...state, dailyChallenges: action.payload };
+    case 'UPDATE_CHALLENGE_PROGRESS':
+      return {
+        ...state,
+        dailyChallenges: state.dailyChallenges.map((c) =>
+          c.id === action.payload.id
+            ? { ...c, currentCount: action.payload.currentCount, completed: action.payload.currentCount >= c.targetCount }
+            : c
+        ),
+      };
+    case 'COMPLETE_CHALLENGE':
+      return {
+        ...state,
+        dailyChallenges: state.dailyChallenges.map((c) =>
+          c.id === action.payload ? { ...c, completed: true, currentCount: c.targetCount } : c
+        ),
+      };
+
     case 'LOAD_STATE':
       return action.payload;
     default:
@@ -565,7 +780,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
             key === 'endTime' ||
             key === 'reminderTime' ||
             key === 'remindAt' ||
-            key === 'snoozedUntil'
+            key === 'snoozedUntil' ||
+            key === 'targetDate' ||
+            key === 'completedAt' ||
+            key === 'unlockedAt'
           ) {
             return value ? new Date(value) : null;
           }
@@ -573,7 +791,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
         });
         // Only load if there's meaningful data
         if (parsed && (parsed.notes?.length > 0 || parsed.todos?.length > 0 || parsed.habits?.length > 0)) {
-          dispatch({ type: 'LOAD_STATE', payload: parsed });
+          // Ensure new state slices exist with defaults for upgrades
+          const merged: AppState = {
+            ...initialState,
+            ...parsed,
+            goals: parsed.goals ?? initialState.goals,
+            pomodoroSessions: parsed.pomodoroSessions ?? [],
+            timeEntries: parsed.timeEntries ?? [],
+            journalEntries: parsed.journalEntries ?? initialState.journalEntries,
+            achievements: parsed.achievements ?? defaultAchievements,
+            dailyChallenges: parsed.dailyChallenges ?? [],
+          };
+          dispatch({ type: 'LOAD_STATE', payload: merged });
         }
       } catch (e) {
         console.error('Failed to parse saved state', e);

@@ -4,6 +4,8 @@ import { AppProvider } from './context/AppContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/common/Layout';
+import { CommandPalette } from './components/common/CommandPalette';
+import { KeyboardShortcuts } from './components/common/KeyboardShortcuts';
 import { Dashboard } from './pages/Dashboard';
 import { Notes } from './pages/Notes';
 import { Todos } from './pages/Todos';
@@ -13,6 +15,10 @@ import { Scheduler } from './pages/Scheduler';
 import { Reminders } from './pages/Reminders';
 import { AuthPage } from './pages/AuthPage';
 import Analytics from './pages/Analytics';
+import Pomodoro from './pages/Pomodoro';
+import Goals from './pages/Goals';
+import Journal from './pages/Journal';
+import Achievements from './pages/Achievements';
 
 function AppContent() {
   const { user, isLoading } = useAuth();
@@ -50,6 +56,9 @@ function AppContent() {
               : { background: '#1e293b', color: '#fff', borderRadius: '12px' },
           }}
         />
+        {/* Global overlays */}
+        <CommandPalette />
+        <KeyboardShortcuts />
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
@@ -60,6 +69,10 @@ function AppContent() {
             <Route path="/scheduler" element={<Scheduler />} />
             <Route path="/reminders" element={<Reminders />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/pomodoro" element={<Pomodoro />} />
+            <Route path="/goals" element={<Goals />} />
+            <Route path="/journal" element={<Journal />} />
+            <Route path="/achievements" element={<Achievements />} />
           </Routes>
         </Layout>
       </BrowserRouter>

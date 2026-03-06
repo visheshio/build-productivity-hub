@@ -85,3 +85,95 @@ export interface ProductivityStats {
   totalIncome: number;
   totalExpenses: number;
 }
+
+// --- Phase 1: Core Productivity ---
+
+export interface Milestone {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+export interface Goal {
+  id: string;
+  title: string;
+  description: string;
+  category: 'career' | 'health' | 'financial' | 'personal';
+  targetDate: Date | null;
+  progress: number; // 0-100
+  milestones: Milestone[];
+  linkedTaskIds: string[];
+  linkedHabitIds: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PomodoroSession {
+  id: string;
+  taskId: string | null;
+  taskTitle: string;
+  duration: number; // in seconds
+  breakDuration: number;
+  completedAt: Date;
+  type: 'work' | 'break';
+}
+
+export interface TimeEntry {
+  id: string;
+  taskId: string;
+  startTime: Date;
+  endTime: Date | null;
+  duration: number; // in seconds
+}
+
+export interface JournalEntry {
+  id: string;
+  content: string;
+  moodRating: 1 | 2 | 3 | 4 | 5;
+  gratitude: string[];
+  date: Date;
+  createdAt: Date;
+}
+
+// --- Phase 3: Gamification ---
+
+export type AchievementType =
+  | 'streak_master'
+  | 'task_crusher'
+  | 'budget_pro'
+  | 'early_bird'
+  | 'note_taker'
+  | 'focus_champion'
+  | 'goal_setter'
+  | 'journal_keeper';
+
+export interface Achievement {
+  id: string;
+  type: AchievementType;
+  title: string;
+  description: string;
+  criteria: string;
+  icon: string;
+  unlockedAt: Date | null;
+}
+
+export interface DailyChallenge {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  targetCount: number;
+  currentCount: number;
+  completed: boolean;
+  date: string; // YYYY-MM-DD
+  points: number;
+}
+
+// --- Phase 2: UX ---
+
+export interface WidgetConfig {
+  id: string;
+  title: string;
+  visible: boolean;
+  order: number;
+}
