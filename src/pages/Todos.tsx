@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { Modal } from '../components/common/Modal';
 import { format, isBefore, startOfDay } from 'date-fns';
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Todo, ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
+import { staggerContainer, staggerItem, slideUp } from '../utils/animations';
 
 const priorityColors = {
   low: 'bg-emerald-100 text-emerald-700',
@@ -160,7 +162,9 @@ export function Todos() {
           <p className="text-slate-500 mt-1">Manage your tasks and stay productive</p>
         </div>
         <div className="flex gap-2">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl font-medium transition-colors ${
               showFilters ? 'bg-slate-100' : 'bg-white hover:bg-slate-50'
@@ -168,86 +172,117 @@ export function Todos() {
           >
             <Filter className="h-5 w-5" />
             Filters
-            <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-          </button>
-          <button
+            <motion.div
+              animate={{ rotate: showFilters ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown className="h-4 w-4" />
+            </motion.div>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => openModal()}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200 hover:shadow-xl transition-shadow"
           >
             <Plus className="h-5 w-5" />
             Add Task
-          </button>
+          </motion.button>
         </div>
       </div>
 
       {/* Filters */}
-      {showFilters && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200 flex flex-wrap gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
-            <select
-              value={filterStatus || ''}
-              onChange={(e) => setFilterStatus(e.target.value || null)}
-              className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            >
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="bg-white rounded-xl p-4 border border-slate-200 flex flex-wrap gap-4"
+          >
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+              <select
+                value={filterStatus || ''}
+                onChange={(e) => setFilterStatus(e.target.value || null)}
+                className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              >
               <option value="">All</option>
               <option value="pending">Pending</option>
               <option value="in-progress">In Progress</option>
               <option value="completed">Completed</option>
             </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-            <select
-              value={filterCategory || ''}
-              onChange={(e) => setFilterCategory(e.target.value || null)}
-              className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            >
-              <option value="">All</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+              <select
+                value={filterCategory || ''}
+                onChange={(e) => setFilterCategory(e.target.value || null)}
+                className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              >
+                <option value="">All</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-slate-200 text-center">
+      <motion.div 
+        className="grid grid-cols-3 gap-4"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        <motion.div variants={staggerItem} className="bg-white rounded-xl p-4 border border-slate-200 text-center">
           <p className="text-2xl font-bold text-slate-900">
             {state.todos.filter((t) => t.status === 'pending').length}
           </p>
           <p className="text-sm text-slate-500">Pending</p>
-        </div>
-        <div className="bg-white rounded-xl p-4 border border-slate-200 text-center">
+        </motion.div>
+        <motion.div variants={staggerItem} className="bg-white rounded-xl p-4 border border-slate-200 text-center">
           <p className="text-2xl font-bold text-blue-600">
             {state.todos.filter((t) => t.status === 'in-progress').length}
           </p>
           <p className="text-sm text-slate-500">In Progress</p>
-        </div>
-        <div className="bg-white rounded-xl p-4 border border-slate-200 text-center">
+        </motion.div>
+        <motion.div variants={staggerItem} className="bg-white rounded-xl p-4 border border-slate-200 text-center">
           <p className="text-2xl font-bold text-emerald-600">
             {state.todos.filter((t) => t.status === 'completed').length}
           </p>
           <p className="text-sm text-slate-500">Completed</p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Todos List */}
       {filteredTodos.length > 0 ? (
-        <div className="space-y-3">
-          {filteredTodos.map((todo) => (
-            <div
-              key={todo.id}
-              className={`bg-white rounded-xl p-4 border border-slate-200 hover:shadow-md transition-shadow ${
-                todo.status === 'completed' ? 'opacity-75' : ''
-              } ${isOverdue(todo) ? 'border-red-300 bg-red-50' : ''}`}
-            >
+        <motion.div 
+          className="space-y-3"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredTodos.map((todo) => (
+              <motion.div
+                key={todo.id}
+                variants={staggerItem}
+                exit={{ opacity: 0, x: -100 }}
+                layout
+                className={`bg-white rounded-xl p-4 border border-slate-200 hover:shadow-md transition-shadow ${
+                  todo.status === 'completed' ? 'opacity-75' : ''
+                } ${isOverdue(todo) ? 'border-red-300 bg-red-50' : ''}`}
+              >
               <div className="flex items-start gap-3">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => toggleStatus(todo)}
                   className={`mt-1 flex-shrink-0 ${
                     todo.status === 'completed' ? 'text-emerald-500' : 'text-slate-300 hover:text-violet-500'
@@ -258,7 +293,7 @@ export function Todos() {
                   ) : (
                     <Circle className="h-6 w-6" />
                   )}
-                </button>
+                </motion.button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <h3
@@ -269,18 +304,22 @@ export function Todos() {
                       {todo.title}
                     </h3>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <button
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => openModal(todo)}
                         className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
                       >
                         <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => dispatch({ type: 'DELETE_TODO', payload: todo.id })}
                         className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
+                      </motion.button>
                     </div>
                   </div>
                   {todo.description && (
@@ -315,11 +354,16 @@ export function Todos() {
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       ) : (
-        <div className="text-center py-12">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-12"
+        >
           <div className="h-16 w-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="h-8 w-8 text-slate-400" />
           </div>
@@ -327,7 +371,7 @@ export function Todos() {
           <p className="text-slate-500">
             {filterStatus || filterCategory ? 'Try different filters' : 'Add your first task to get started'}
           </p>
-        </div>
+        </motion.div>
       )}
 
       {/* Modal */}

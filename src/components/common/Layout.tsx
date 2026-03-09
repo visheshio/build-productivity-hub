@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, StickyNote, CheckSquare, DollarSign,
   Target, Calendar, Bell, Menu, X, Sparkles, LogOut, ChevronDown, BarChart3,
@@ -11,6 +12,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { MotivationBar } from './MotivationBar';
 import { GlobalSearch } from './GlobalSearch';
 import { DataExport } from './DataExport';
+import { staggerContainer, staggerItem, slideLeft } from '../../utils/animations';
 
 const navSections = [
   {
@@ -107,11 +109,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 backdrop-blur-lg border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 flex flex-col ${sidebarBg} ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
+      <AnimatePresence mode="wait">
+        <motion.aside
+          initial={{ x: '-100%' }}
+          animate={{ x: 0 }}
+          exit={{ x: '-100%' }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className={`fixed inset-y-0 left-0 z-40 w-64 backdrop-blur-lg border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 flex flex-col ${sidebarBg} ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
         {/* Logo */}
         <div className={`p-5 border-b ${isDark ? 'border-gray-800' : 'border-slate-100'}`}>
           <div className="flex items-center gap-3">
@@ -138,9 +145,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 p-3 overflow-y-auto space-y-4">
+        <motion.nav 
+          className="flex-1 p-3 overflow-y-auto space-y-4"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
           {navSections.map((section) => (
-            <div key={section.label}>
+            <motion.div key={section.label} variants={staggerItem}>
               <p className={`text-xs font-semibold uppercase tracking-wider px-3 mb-2 ${isDark ? 'text-gray-600' : 'text-slate-400'}`}>
                 {section.label}
               </p>
@@ -148,47 +160,66 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 {section.items.map((item) => {
                   const isActive = location.pathname === item.path;
                   return (
-                    <Link
+                    <motion.div
                       key={item.path}
-                      to={item.path}
-                      onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group ${
-                        isActive
-                          ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-lg shadow-indigo-200/50 dark:shadow-indigo-900/30'
-                          : isDark
-                          ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                      }`}
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      <item.icon
-                        className={`h-4 w-4 transition-transform group-hover:scale-110 ${
-                          isActive ? 'text-white' : item.color
+                      <Link
+                        to={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                          isActive
+                            ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-lg shadow-indigo-200/50 dark:shadow-indigo-900/30'
+                            : isDark
+                            ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                         }`}
-                      />
-                      {item.label}
-                      {isActive && (
-                        <div className="ml-auto h-1.5 w-1.5 rounded-full bg-white/70" />
-                      )}
-                    </Link>
+                      >
+                        <item.icon
+                          className={`h-4 w-4 transition-transform group-hover:scale-110 ${
+                            isActive ? 'text-white' : item.color
+                          }`}
+                        />
+                        {item.label}
+                        {isActive && (
+                          <motion.div 
+                            layoutId="activeIndicator"
+                            className="ml-auto h-1.5 w-1.5 rounded-full bg-white/70"
+                          />
+                        )}
+                      </Link>
+                    </motion.div>
                   );
                 })}
               </div>
-            </div>
+            </motion.div>
           ))}
 
           {/* Utility buttons */}
           <div className={`pt-2 border-t ${isDark ? 'border-gray-800' : 'border-slate-100'}`}>
-            <button onClick={() => setExportOpen(true)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all ${isDark ? 'text-gray-400 hover:bg-gray-800 hover:text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}>
+            <motion.button 
+              onClick={() => setExportOpen(true)}
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.98 }}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all ${isDark ? 'text-gray-400 hover:bg-gray-800 hover:text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+            >
               <Download className="h-4 w-4 text-gray-500" /> Export / Import
-            </button>
+            </motion.button>
           </div>
-        </nav>
+        </motion.nav>
 
         {/* User profile section */}
-        <div className={`p-4 border-t ${isDark ? 'border-gray-800' : 'border-slate-100'}`}>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className={`p-4 border-t ${isDark ? 'border-gray-800' : 'border-slate-100'}`}
+        >
           <div className="relative">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all duration-200 ${
                 isDark ? 'hover:bg-gray-800' : 'hover:bg-slate-50'
@@ -203,46 +234,66 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   {user?.email}
                 </p>
               </div>
-              <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${userMenuOpen ? 'rotate-180' : ''} ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
-            </button>
+              <motion.div
+                animate={{ rotate: userMenuOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronDown className={`h-4 w-4 shrink-0 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
+              </motion.div>
+            </motion.button>
 
-            {userMenuOpen && (
-              <div className={`absolute bottom-full left-0 right-0 mb-2 rounded-xl border shadow-xl overflow-hidden z-50 ${
-                isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'
-              }`}>
-                <div className={`px-4 py-3 border-b ${isDark ? 'border-gray-700' : 'border-slate-100'}`}>
-                  <div className="flex items-center gap-3">
-                    {user && <UserAvatar user={user} size="md" />}
-                    <div className="min-w-0">
-                      <p className={`font-semibold text-sm truncate ${isDark ? 'text-white' : 'text-slate-800'}`}>{user?.name}</p>
-                      <p className={`text-xs truncate ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{user?.email}</p>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => { setUserMenuOpen(false); signOut(); }}
-                  className={`w-full flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors ${
-                    isDark
-                      ? 'text-red-400 hover:bg-gray-700'
-                      : 'text-red-600 hover:bg-red-50'
+            <AnimatePresence>
+              {userMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className={`absolute bottom-full left-0 right-0 mb-2 rounded-xl border shadow-xl overflow-hidden z-50 ${
+                    isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'
                   }`}
                 >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </button>
-              </div>
-            )}
+                  <div className={`px-4 py-3 border-b ${isDark ? 'border-gray-700' : 'border-slate-100'}`}>
+                    <div className="flex items-center gap-3">
+                      {user && <UserAvatar user={user} size="md" />}
+                      <div className="min-w-0">
+                        <p className={`font-semibold text-sm truncate ${isDark ? 'text-white' : 'text-slate-800'}`}>{user?.name}</p>
+                        <p className={`text-xs truncate ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{user?.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ backgroundColor: isDark ? 'rgb(55, 65, 81)' : 'rgb(254, 242, 242)' }}
+                    onClick={() => { setUserMenuOpen(false); signOut(); }}
+                    className={`w-full flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors ${
+                      isDark
+                        ? 'text-red-400 hover:bg-gray-700'
+                        : 'text-red-600 hover:bg-red-50'
+                    }`}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        </div>
-      </aside>
+        </motion.div>
+      </motion.aside>
+      </AnimatePresence>
 
       {/* Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Main content */}
       <main className="lg:pl-64 pt-16 lg:pt-0 min-h-screen flex flex-col">
