@@ -3,6 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../context/ThemeContext';
 import { Modal } from '../components/common/Modal';
+import { CategoryAutoSuggest } from '../components/common/CategoryAutoSuggest';
+import { useCategories } from '../context/SuggestionsContext';
+import { ExportDropdown } from '../components/common/ExportDropdown';
+import { exportTodos } from '../utils/csvExport';
 import { format, isBefore, startOfDay } from 'date-fns';
 import {
   Plus,
@@ -16,10 +20,12 @@ import {
   AlertCircle,
   ListChecks,
   X,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { Todo, ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { staggerContainer, staggerItem } from '../utils/animations';
+import toast from 'react-hot-toast';
 
 const priorityColors = {
   low: 'bg-emerald-100 text-emerald-700',
@@ -46,6 +52,7 @@ export function Todos() {
   const inputCls = isDark
     ? 'bg-gray-800 border-gray-700 text-white focus:border-violet-500'
     : 'bg-white border-slate-200 focus:ring-2 focus:ring-violet-500 focus:border-transparent';
+  const taskCategories = useCategories('tasks');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
@@ -193,6 +200,21 @@ export function Todos() {
               <ChevronDown className="h-4 w-4" />
             </motion.div>
           </motion.button>
+          <ExportDropdown
+            options={[
+              {
+                label: 'Export Current View',
+                icon: <FileSpreadsheet className="h-4 w-4" />,
+                onExport: () => { exportTodos(filteredTodos); toast.success('Filtered tasks exported!'); },
+              },
+              {
+                label: `Export All Tasks (${state.todos.length})`,
+                onExport: () => { exportTodos(state.todos); toast.success('All tasks exported!'); },
+              },
+            ]}
+            label="Export"
+            disabled={state.todos.length === 0}
+          />
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -458,17 +480,11 @@ export function Todos() {
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1 ${labelCls}`}>Category</label>
-              <select
+              <CategoryAutoSuggest
+                categories={taskCategories.length > 0 ? taskCategories : categories}
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={`w-full px-3 py-2 border rounded-xl outline-none text-sm ${inputCls}`}
-              >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+                onChange={setCategory}
+              />
             </div>
           </div>
           <div>

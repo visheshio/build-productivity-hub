@@ -3,10 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../context/ThemeContext';
 import { Modal } from '../components/common/Modal';
+import { ExportButton } from '../components/common/ExportButton';
+import { exportHabits } from '../utils/csvExport';
 import { format, subDays, eachDayOfInterval, startOfMonth, endOfMonth, isSameMonth, isToday } from 'date-fns';
 import { Plus, Flame, Target, Trophy, ChevronLeft, ChevronRight, Trash2, Edit2 } from 'lucide-react';
 import { Habit } from '../types';
 import { staggerContainer, staggerItem } from '../utils/animations';
+import toast from 'react-hot-toast';
 
 const categoryColors = {
   health: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -133,15 +136,22 @@ export function Habits() {
           <h1 className={`text-2xl lg:text-3xl font-bold ${cardTitle}`}>Habit Tracker</h1>
           <p className={`mt-1 ${subText}`}>Build good habits and track your progress</p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200/50 hover:shadow-xl transition-shadow"
-        >
-          <Plus className="h-5 w-5" />
-          New Habit
-        </motion.button>
+        <div className="flex gap-2">
+          <ExportButton
+            onExport={() => { exportHabits(state.habits); toast.success('Habits exported!'); }}
+            label="Export"
+            disabled={state.habits.length === 0}
+          />
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => openModal()}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200/50 hover:shadow-xl transition-shadow"
+          >
+            <Plus className="h-5 w-5" />
+            New Habit
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* Stats */}
@@ -231,10 +241,10 @@ export function Habits() {
                               whileTap={{ scale: 0.82 }}
                               onClick={() => toggleHabitForDate(habit.id, day.date)}
                               className={`h-8 w-8 rounded-lg mx-auto flex items-center justify-center transition-colors ${isCompleted
-                                  ? 'bg-emerald-500 text-white shadow-sm'
-                                  : isDark
-                                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-400'
-                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-400'
+                                ? 'bg-emerald-500 text-white shadow-sm'
+                                : isDark
+                                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-400'
+                                  : 'bg-slate-100 hover:bg-slate-200 text-slate-400'
                                 }`}
                             >
                               {isCompleted && (
@@ -345,12 +355,12 @@ export function Habits() {
                     whileTap={{ scale: 0.9 }}
                     onClick={() => toggleHabitForDate(selectedHabit.id, dateStr)}
                     className={`aspect-square rounded-lg flex items-center justify-center text-sm transition-colors ${isCompleted
-                        ? 'bg-emerald-500 text-white font-medium'
-                        : isCurrent
-                          ? isDark ? 'bg-violet-900/40 text-violet-400 font-medium' : 'bg-violet-100 text-violet-700 font-medium'
-                          : isCurrentMonth
-                            ? isDark ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-slate-100 text-slate-700'
-                            : isDark ? 'text-gray-600' : 'text-slate-300'
+                      ? 'bg-emerald-500 text-white font-medium'
+                      : isCurrent
+                        ? isDark ? 'bg-violet-900/40 text-violet-400 font-medium' : 'bg-violet-100 text-violet-700 font-medium'
+                        : isCurrentMonth
+                          ? isDark ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-slate-100 text-slate-700'
+                          : isDark ? 'text-gray-600' : 'text-slate-300'
                       }`}
                   >
                     {format(day, 'd')}
@@ -400,8 +410,8 @@ export function Habits() {
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setCategory(cat)}
                   className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 ${category === cat
-                      ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20'
-                      : isDark ? 'border-gray-700 hover:border-gray-600' : 'border-slate-200 hover:border-slate-300'
+                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20'
+                    : isDark ? 'border-gray-700 hover:border-gray-600' : 'border-slate-200 hover:border-slate-300'
                     }`}
                 >
                   <span className="text-xl">{categoryIcons[cat]}</span>

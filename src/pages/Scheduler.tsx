@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Modal } from '../components/common/Modal';
+import { ExportButton } from '../components/common/ExportButton';
+import { exportEvents } from '../utils/csvExport';
 import {
   format,
   startOfMonth,
@@ -20,6 +22,7 @@ import {
 } from 'date-fns';
 import { Plus, ChevronLeft, ChevronRight, Clock, Trash2, Edit2, Calendar } from 'lucide-react';
 import { Event } from '../types';
+import toast from 'react-hot-toast';
 
 const eventColors = [
   '#8b5cf6',
@@ -135,13 +138,20 @@ export function Scheduler() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">Plan Scheduler</h1>
           <p className="text-slate-500 mt-1">Organize your events and appointments</p>
         </div>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200 hover:shadow-xl transition-shadow"
-        >
-          <Plus className="h-5 w-5" />
-          New Event
-        </button>
+        <div className="flex gap-2">
+          <ExportButton
+            onExport={() => { exportEvents(state.events); toast.success('Events exported!'); }}
+            label="Export"
+            disabled={state.events.length === 0}
+          />
+          <button
+            onClick={() => openModal()}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200 hover:shadow-xl transition-shadow"
+          >
+            <Plus className="h-5 w-5" />
+            New Event
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -158,8 +168,8 @@ export function Scheduler() {
                   {viewType === 'month'
                     ? format(viewDate, 'MMMM yyyy')
                     : viewType === 'week'
-                    ? `Week of ${format(weekStart, 'MMM d')}`
-                    : format(viewDate, 'EEEE, MMMM d, yyyy')}
+                      ? `Week of ${format(weekStart, 'MMM d')}`
+                      : format(viewDate, 'EEEE, MMMM d, yyyy')}
                 </h2>
                 <button onClick={navigateNext} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
                   <ChevronRight className="h-5 w-5" />
@@ -170,9 +180,8 @@ export function Scheduler() {
                   <button
                     key={v}
                     onClick={() => setViewType(v)}
-                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                      viewType === v ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:text-slate-900'
-                    }`}
+                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${viewType === v ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600 hover:text-slate-900'
+                      }`}
                   >
                     {v.charAt(0).toUpperCase() + v.slice(1)}
                   </button>
@@ -211,18 +220,16 @@ export function Scheduler() {
                     <button
                       key={day.toISOString()}
                       onClick={() => setSelectedDate(day)}
-                      className={`min-h-[80px] p-1 rounded-lg text-left transition-all ${
-                        isSelected
+                      className={`min-h-[80px] p-1 rounded-lg text-left transition-all ${isSelected
                           ? 'bg-violet-100 ring-2 ring-violet-500'
                           : isCurrent
-                          ? 'bg-violet-50'
-                          : 'hover:bg-slate-50'
-                      } ${!isCurrentMonth ? 'opacity-40' : ''}`}
+                            ? 'bg-violet-50'
+                            : 'hover:bg-slate-50'
+                        } ${!isCurrentMonth ? 'opacity-40' : ''}`}
                     >
                       <span
-                        className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-sm ${
-                          isCurrent ? 'bg-violet-600 text-white font-medium' : 'text-slate-700'
-                        }`}
+                        className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-sm ${isCurrent ? 'bg-violet-600 text-white font-medium' : 'text-slate-700'
+                          }`}
                       >
                         {format(day, 'd')}
                       </span>
@@ -259,9 +266,8 @@ export function Scheduler() {
                   >
                     <div className="text-xs text-slate-400">{format(day, 'EEE')}</div>
                     <div
-                      className={`text-lg font-medium ${
-                        isToday(day) ? 'text-violet-600' : 'text-slate-700'
-                      }`}
+                      className={`text-lg font-medium ${isToday(day) ? 'text-violet-600' : 'text-slate-700'
+                        }`}
                     >
                       {format(day, 'd')}
                     </div>
@@ -281,9 +287,8 @@ export function Scheduler() {
                       return (
                         <div
                           key={day.toISOString()}
-                          className={`border-t border-slate-100 min-h-[40px] ${
-                            isToday(day) ? 'bg-violet-50/50' : ''
-                          }`}
+                          className={`border-t border-slate-100 min-h-[40px] ${isToday(day) ? 'bg-violet-50/50' : ''
+                            }`}
                           onClick={() => openModal(undefined, new Date(day.setHours(hour)))}
                         >
                           {dayEvents.map((event) => (
@@ -470,9 +475,8 @@ export function Scheduler() {
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full transition-transform ${
-                    color === c ? 'ring-2 ring-offset-2 ring-slate-400 scale-110' : ''
-                  }`}
+                  className={`w-8 h-8 rounded-full transition-transform ${color === c ? 'ring-2 ring-offset-2 ring-slate-400 scale-110' : ''
+                    }`}
                   style={{ backgroundColor: c }}
                 />
               ))}

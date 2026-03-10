@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AppProvider } from './context/AppContext';
+import { SuggestionsProvider } from './context/SuggestionsContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/common/Layout';
@@ -46,36 +47,38 @@ function AppContent() {
 
   return (
     <AppProvider>
-      <BrowserRouter>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-            style: isDark
-              ? { background: '#1e1b4b', color: '#e0e7ff', borderRadius: '12px', border: '1px solid #312e81' }
-              : { background: '#1e293b', color: '#fff', borderRadius: '12px' },
-          }}
-        />
-        {/* Global overlays */}
-        <CommandPalette />
-        <KeyboardShortcuts />
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/notes" element={<Notes />} />
-            <Route path="/todos" element={<Todos />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/habits" element={<Habits />} />
-            <Route path="/scheduler" element={<Scheduler />} />
-            <Route path="/reminders" element={<Reminders />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/pomodoro" element={<Pomodoro />} />
-            <Route path="/goals" element={<Goals />} />
-            <Route path="/journal" element={<Journal />} />
-            <Route path="/achievements" element={<Achievements />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
+      <SuggestionsProvider>
+        <BrowserRouter>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+              style: isDark
+                ? { background: '#1e1b4b', color: '#e0e7ff', borderRadius: '12px', border: '1px solid #312e81' }
+                : { background: '#1e293b', color: '#fff', borderRadius: '12px' },
+            }}
+          />
+          {/* Global overlays */}
+          <CommandPalette />
+          <KeyboardShortcuts />
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/notes" element={<Notes />} />
+              <Route path="/todos" element={<Todos />} />
+              <Route path="/expenses" element={<Expenses />} />
+              <Route path="/habits" element={<Habits />} />
+              <Route path="/scheduler" element={<Scheduler />} />
+              <Route path="/reminders" element={<Reminders />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/pomodoro" element={<Pomodoro />} />
+              <Route path="/goals" element={<Goals />} />
+              <Route path="/journal" element={<Journal />} />
+              <Route path="/achievements" element={<Achievements />} />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
+      </SuggestionsProvider>
     </AppProvider>
   );
 }

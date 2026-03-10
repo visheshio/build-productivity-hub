@@ -2,7 +2,7 @@ import React, { createContext, useContext, useReducer, useEffect, ReactNode } fr
 import { Note, Todo, Expense, Budget, Habit, Event, Reminder, Goal, PomodoroSession, TimeEntry, JournalEntry, Achievement, AchievementType, DailyChallenge } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
-interface AppState {
+export interface AppState {
   notes: Note[];
   todos: Todo[];
   expenses: Expense[];
@@ -423,26 +423,26 @@ const initialState: AppState = {
 
 function calculateStreak(completedDates: string[]): number {
   if (completedDates.length === 0) return 0;
-  
+
   const sortedDates = [...completedDates].sort().reverse();
   const today = new Date().toISOString().split('T')[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  
+
   if (sortedDates[0] !== today && sortedDates[0] !== yesterday) return 0;
-  
+
   let streak = 1;
   for (let i = 1; i < sortedDates.length; i++) {
     const current = new Date(sortedDates[i - 1]);
     const prev = new Date(sortedDates[i]);
     const diffDays = Math.floor((current.getTime() - prev.getTime()) / 86400000);
-    
+
     if (diffDays === 1) {
       streak++;
     } else {
       break;
     }
   }
-  
+
   return streak;
 }
 

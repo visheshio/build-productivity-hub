@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Modal } from '../components/common/Modal';
+import { CategoryAutoSuggest } from '../components/common/CategoryAutoSuggest';
+import { useCategories } from '../context/SuggestionsContext';
+import { ExportDropdown } from '../components/common/ExportDropdown';
+import { exportExpenses } from '../utils/csvExport';
 import { format, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import {
   Plus,
@@ -12,8 +16,10 @@ import {
   Filter,
   Repeat,
   PiggyBank,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { Expense } from '../types';
+import toast from 'react-hot-toast';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
 
 const expenseCategories = ['Food', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Health', 'Other'];
@@ -23,6 +29,8 @@ const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
 
 export function Expenses() {
   const { state, dispatch } = useApp();
+  const expenseCategoryOptions = useCategories('expenses');
+  const incomeCategoryOptions = useCategories('income');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
@@ -148,6 +156,21 @@ export function Expenses() {
           <p className="text-slate-500 mt-1">Track your income and expenses</p>
         </div>
         <div className="flex gap-2">
+          <ExportDropdown
+            options={[
+              {
+                label: 'Export Current Month',
+                icon: <FileSpreadsheet className="h-4 w-4" />,
+                onExport: () => { exportExpenses(monthlyExpenses); toast.success('Monthly expenses exported!'); },
+              },
+              {
+                label: `Export All (${state.expenses.length})`,
+                onExport: () => { exportExpenses(state.expenses); toast.success('All expenses exported!'); },
+              },
+            ]}
+            label="Export"
+            disabled={state.expenses.length === 0}
+          />
           <button
             onClick={() => setIsBudgetModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white rounded-xl font-medium hover:bg-slate-50 transition-colors"
@@ -315,9 +338,8 @@ export function Expenses() {
               <div key={expense.id} className="p-4 hover:bg-slate-50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div
-                    className={`h-10 w-10 rounded-xl flex items-center justify-center ${
-                      expense.type === 'income' ? 'bg-emerald-100' : 'bg-red-100'
-                    }`}
+                    className={`h-10 w-10 rounded-xl flex items-center justify-center ${expense.type === 'income' ? 'bg-emerald-100' : 'bg-red-100'
+                      }`}
                   >
                     {expense.type === 'income' ? (
                       <TrendingUp className="h-5 w-5 text-emerald-600" />
@@ -334,9 +356,8 @@ export function Expenses() {
                   </div>
                   <div className="text-right">
                     <p
-                      className={`font-semibold ${
-                        expense.type === 'income' ? 'text-emerald-600' : 'text-red-600'
-                      }`}
+                      className={`font-semibold ${expense.type === 'income' ? 'text-emerald-600' : 'text-red-600'
+                        }`}
                     >
                       {expense.type === 'income' ? '+' : '-'}₹{expense.amount.toLocaleString()}
                     </p>
@@ -387,11 +408,10 @@ export function Expenses() {
                   setType('income');
                   setCategory('Salary');
                 }}
-                className={`flex-1 py-2 rounded-xl font-medium transition-colors ${
-                  type === 'income'
-                    ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300'
-                    : 'bg-slate-100 text-slate-600 border-2 border-transparent'
-                }`}
+                className={`flex-1 py-2 rounded-xl font-medium transition-colors ${type === 'income'
+                  ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-300'
+                  : 'bg-slate-100 text-slate-600 border-2 border-transparent'
+                  }`}
               >
                 Income
               </button>
@@ -401,11 +421,10 @@ export function Expenses() {
                   setType('expense');
                   setCategory('Food');
                 }}
-                className={`flex-1 py-2 rounded-xl font-medium transition-colors ${
-                  type === 'expense'
-                    ? 'bg-red-100 text-red-700 border-2 border-red-300'
-                    : 'bg-slate-100 text-slate-600 border-2 border-transparent'
-                }`}
+                className={`flex-1 py-2 rounded-xl font-medium transition-colors ${type === 'expense'
+                  ? 'bg-red-100 text-red-700 border-2 border-red-300'
+                  : 'bg-slate-100 text-slate-600 border-2 border-transparent'
+                  }`}
               >
                 Expense
               </button>
@@ -430,17 +449,15 @@ export function Expenses() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-              <select
+              <CategoryAutoSuggest
+                categories={
+                  type === 'income'
+                    ? (incomeCategoryOptions.length > 0 ? incomeCategoryOptions : incomeCategories)
+                    : (expenseCategoryOptions.length > 0 ? expenseCategoryOptions : expenseCategories)
+                }
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-              >
-                {(type === 'income' ? incomeCategories : expenseCategories).map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+                onChange={setCategory}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>

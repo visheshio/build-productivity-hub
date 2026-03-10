@@ -3,8 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { Modal } from '../components/common/Modal';
 import { useDarkMode } from '../hooks/useDarkMode';
+import { TagAutoSuggest } from '../components/common/TagAutoSuggest';
+import { useTags } from '../context/SuggestionsContext';
+import { ExportButton } from '../components/common/ExportButton';
+import { exportNotes } from '../utils/csvExport';
 import { format } from 'date-fns';
-import { Plus, Search, Pin, Trash2, Edit2, X, StickyNote } from 'lucide-react';
+import { Plus, Search, Pin, Trash2, Edit2, StickyNote } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { Note } from '../types';
 import { staggerContainer, staggerItem } from '../utils/animations';
 
@@ -18,9 +23,10 @@ export function Notes() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
-
+  const { tags: suggestionTags, addTag: saveSuggestionTag } = useTags();
   const allTags = Array.from(new Set(state.notes.flatMap((n) => n.tags)));
+  // Merge existing note tags with default suggestions
+  const tagSuggestions = Array.from(new Set([...suggestionTags, ...allTags]));
 
   const filteredNotes = state.notes
     .filter((note) => {
@@ -56,10 +62,7 @@ export function Notes() {
     setIsModalOpen(false);
   };
 
-  const addTag = () => {
-    const t = newTag.trim().toLowerCase();
-    if (t && !tags.includes(t)) { setTags([...tags, t]); setNewTag(''); }
-  };
+
 
   return (
     <div className="space-y-6">
@@ -74,14 +77,21 @@ export function Notes() {
           <h1 className={`text-2xl lg:text-3xl font-bold ${dm.cardTitle}`}>Notes</h1>
           <p className={dm.subText}>Capture your thoughts and ideas</p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200/50 hover:shadow-xl transition-shadow"
-        >
-          <Plus className="h-4 w-4" /> New Note
-        </motion.button>
+        <div className="flex gap-2">
+          <ExportButton
+            onExport={() => { exportNotes(state.notes); toast.success('Notes exported!'); }}
+            label="Export"
+            disabled={state.notes.length === 0}
+          />
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => openModal()}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200/50 hover:shadow-xl transition-shadow"
+          >
+            <Plus className="h-4 w-4" /> New Note
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* Search and Filter */}
@@ -225,26 +235,19 @@ export function Notes() {
           </div>
           <div>
             <label className={`block text-sm font-medium mb-1.5 ${dm.label}`}>Tags</label>
-            <div className="flex gap-2 mb-2">
-              <input
-                type="text" value={newTag} onChange={(e) => setNewTag(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                placeholder="Add tag..."
-                className={`flex-1 px-3 py-2 border rounded-xl outline-none text-sm transition-all ${dm.input}`}
-              />
-              <button type="button" onClick={addTag}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${dm.isDark ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
-                Add
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <span key={tag} className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1 ${dm.tagColor(tag)}`}>
-                  {tag}
-                  <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))}><X className="h-3 w-3" /></button>
-                </span>
-              ))}
-            </div>
+            <TagAutoSuggest
+              suggestions={tagSuggestions}
+              selectedTags={tags}
+              onTagsChange={(newTags) => {
+                // Save any new custom tags to the suggestions context
+                newTags.forEach((t) => {
+                  if (!tags.includes(t)) saveSuggestionTag(t);
+                });
+                setTags(newTags);
+              }}
+              placeholder="Add tags..."
+              allowCustom
+            />
           </div>
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={() => setIsModalOpen(false)}

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Modal } from '../components/common/Modal';
+import { ExportButton } from '../components/common/ExportButton';
+import { exportReminders } from '../utils/csvExport';
 import { format, isBefore, addMinutes, addHours, addDays, isPast } from 'date-fns';
 import {
   Plus,
@@ -14,6 +16,7 @@ import {
   Volume2,
 } from 'lucide-react';
 import { Reminder } from '../types';
+import toast from 'react-hot-toast';
 
 export function Reminders() {
   const { state, dispatch } = useApp();
@@ -148,13 +151,20 @@ export function Reminders() {
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">Reminders</h1>
           <p className="text-slate-500 mt-1">Never forget important things</p>
         </div>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200 hover:shadow-xl transition-shadow"
-        >
-          <Plus className="h-5 w-5" />
-          New Reminder
-        </button>
+        <div className="flex gap-2">
+          <ExportButton
+            onExport={() => { exportReminders(state.reminders); toast.success('Reminders exported!'); }}
+            label="Export"
+            disabled={state.reminders.length === 0}
+          />
+          <button
+            onClick={() => openModal()}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200 hover:shadow-xl transition-shadow"
+          >
+            <Plus className="h-5 w-5" />
+            New Reminder
+          </button>
+        </div>
       </div>
 
       {/* Active Reminders Alert */}
