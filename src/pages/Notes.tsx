@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { Modal } from '../components/common/Modal';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { format } from 'date-fns';
 import { Plus, Search, Pin, Trash2, Edit2, X, StickyNote } from 'lucide-react';
 import { Note } from '../types';
+import { staggerContainer, staggerItem } from '../utils/animations';
 
 export function Notes() {
   const { state, dispatch } = useApp();
@@ -61,21 +63,34 @@ export function Notes() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <h1 className={`text-2xl lg:text-3xl font-bold ${dm.cardTitle}`}>Notes</h1>
           <p className={dm.subText}>Capture your thoughts and ideas</p>
         </div>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200/50 hover:shadow-xl transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200/50 hover:shadow-xl transition-shadow"
         >
           <Plus className="h-4 w-4" /> New Note
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.05 }}
+        className="flex flex-col sm:flex-row gap-4"
+      >
         <div className="relative flex-1">
           <Search className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${dm.mutedText}`} />
           <input
@@ -87,77 +102,107 @@ export function Notes() {
           />
         </div>
         <div className="flex gap-2 flex-wrap">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={() => setSelectedTag(null)}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${!selectedTag ? dm.activeFilter : dm.inactiveFilter}`}
           >
             All
-          </button>
+          </motion.button>
           {allTags.map((tag) => (
-            <button
+            <motion.button
               key={tag}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedTag === tag ? dm.activeFilter : dm.inactiveFilter}`}
             >
               {tag}
-            </button>
+            </motion.button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Notes Grid */}
       {filteredNotes.length > 0 ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredNotes.map((note) => (
-            <div
-              key={note.id}
-              className={`rounded-2xl p-5 shadow-sm border transition-all duration-200 group ${dm.card} ${
-                note.isPinned ? 'ring-2 ring-amber-400/60' : ''
-              } hover:shadow-md`}
-            >
-              <div className="flex items-start justify-between mb-3 gap-2">
-                <h3 className={`font-semibold line-clamp-1 flex-1 ${dm.cardTitle}`}>
-                  {note.isPinned && <span className="text-amber-400 mr-1">📌</span>}
-                  {note.title}
-                </h3>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                  <button
-                    onClick={() => dispatch({ type: 'TOGGLE_PIN_NOTE', payload: note.id })}
-                    className={`p-1.5 rounded-lg transition-colors ${note.isPinned ? 'text-amber-500' : dm.mutedText} ${dm.hoverItem}`}
-                  >
-                    <Pin className="h-3.5 w-3.5" />
-                  </button>
-                  <button onClick={() => openModal(note)} className={`p-1.5 rounded-lg transition-colors ${dm.mutedText} ${dm.hoverItem}`}>
-                    <Edit2 className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={() => dispatch({ type: 'DELETE_NOTE', payload: note.id })}
-                    className={`p-1.5 rounded-lg transition-colors text-red-400 ${dm.isDark ? 'hover:bg-red-900/30' : 'hover:bg-red-50'}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+        <motion.div
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredNotes.map((note) => (
+              <motion.div
+                key={note.id}
+                variants={staggerItem}
+                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                layout
+                whileHover={{ y: -3, transition: { duration: 0.15 } }}
+                className={`rounded-2xl p-5 shadow-sm border transition-colors duration-200 group ${dm.card} ${note.isPinned ? 'ring-2 ring-amber-400/60' : ''
+                  }`}
+              >
+                <div className="flex items-start justify-between mb-3 gap-2">
+                  <h3 className={`font-semibold line-clamp-1 flex-1 ${dm.cardTitle}`}>
+                    {note.isPinned && <span className="text-amber-400 mr-1">📌</span>}
+                    {note.title}
+                  </h3>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    <motion.button
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.85 }}
+                      onClick={() => dispatch({ type: 'TOGGLE_PIN_NOTE', payload: note.id })}
+                      className={`p-1.5 rounded-lg transition-colors ${note.isPinned ? 'text-amber-500' : dm.mutedText} ${dm.hoverItem}`}
+                    >
+                      <Pin className="h-3.5 w-3.5" />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.85 }}
+                      onClick={() => openModal(note)}
+                      className={`p-1.5 rounded-lg transition-colors ${dm.mutedText} ${dm.hoverItem}`}
+                    >
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.85 }}
+                      onClick={() => dispatch({ type: 'DELETE_NOTE', payload: note.id })}
+                      className={`p-1.5 rounded-lg transition-colors text-red-400 ${dm.isDark ? 'hover:bg-red-900/30' : 'hover:bg-red-50'}`}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </motion.button>
+                  </div>
                 </div>
-              </div>
-              <p className={`text-sm line-clamp-3 mb-3 whitespace-pre-wrap ${dm.subText}`}>{note.content}</p>
-              {note.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {note.tags.map((tag) => (
-                    <span key={tag} className={`px-2 py-0.5 rounded-md text-xs font-medium ${dm.tagColor(tag)}`}>{tag}</span>
-                  ))}
-                </div>
-              )}
-              <p className={`text-xs ${dm.mutedText}`}>Updated {format(new Date(note.updatedAt), 'MMM d, yyyy')}</p>
-            </div>
-          ))}
-        </div>
+                <p className={`text-sm line-clamp-3 mb-3 whitespace-pre-wrap ${dm.subText}`}>{note.content}</p>
+                {note.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {note.tags.map((tag) => (
+                      <span key={tag} className={`px-2 py-0.5 rounded-md text-xs font-medium ${dm.tagColor(tag)}`}>{tag}</span>
+                    ))}
+                  </div>
+                )}
+                <p className={`text-xs ${dm.mutedText}`}>Updated {format(new Date(note.updatedAt), 'MMM d, yyyy')}</p>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       ) : (
-        <div className="text-center py-16">
-          <div className={`h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${dm.emptyBg}`}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="text-center py-16"
+        >
+          <motion.div
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className={`h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${dm.emptyBg}`}
+          >
             <StickyNote className={`h-8 w-8 ${dm.emptyIcon}`} />
-          </div>
+          </motion.div>
           <h3 className={`text-lg font-semibold mb-1 ${dm.cardTitle}`}>No notes found</h3>
           <p className={dm.subText}>{searchQuery || selectedTag ? 'Try a different search or filter' : 'Create your first note to get started'}</p>
-        </div>
+        </motion.div>
       )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingNote ? 'Edit Note' : 'New Note'}>
@@ -206,10 +251,14 @@ export function Notes() {
               className={`flex-1 px-4 py-2.5 border rounded-xl text-sm font-medium transition-colors ${dm.cancelBtn}`}>
               Cancel
             </button>
-            <button type="submit"
-              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow text-sm">
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow text-sm"
+            >
               {editingNote ? 'Update Note' : 'Create Note'}
-            </button>
+            </motion.button>
           </div>
         </form>
       </Modal>

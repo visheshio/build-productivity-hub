@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +15,8 @@ import {
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
-import { pageTransition, staggerContainer, staggerItem, slideUp, cardHover } from '../utils/animations';
+import { staggerContainer, staggerItem } from '../utils/animations';
+import { AnimatedNumber } from '../components/common/AnimatedNumber';
 
 const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
 const MOOD_EMOJIS = ['😢', '😕', '😐', '🙂', '😄'];
@@ -199,19 +200,28 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex items-center justify-between"
+      >
         <div>
           <h1 className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
             Dashboard
           </h1>
           <p className={subText}>Welcome back, {firstName}! Here's your productivity overview.</p>
         </div>
-        <button onClick={() => setShowWidgetConfig(!showWidgetConfig)}
+        <motion.button
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={() => setShowWidgetConfig(!showWidgetConfig)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isDark ? 'bg-gray-800 text-gray-400 hover:bg-gray-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
           {showWidgetConfig ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
           Widgets
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Widget config panel */}
       {showWidgetConfig && (
@@ -220,11 +230,10 @@ export function Dashboard() {
           <div className="flex flex-wrap gap-2">
             {widgets.map((w: any) => (
               <button key={w.id} onClick={() => toggleWidget(w.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  w.visible
-                    ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-sm'
-                    : isDark ? 'bg-gray-800 text-gray-500' : 'bg-slate-100 text-slate-400'
-                }`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${w.visible
+                  ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-sm'
+                  : isDark ? 'bg-gray-800 text-gray-500' : 'bg-slate-100 text-slate-400'
+                  }`}>
                 {w.visible ? <Eye className="h-3 w-3 inline mr-1" /> : <EyeOff className="h-3 w-3 inline mr-1" />}
                 {w.title}
               </button>
@@ -235,14 +244,24 @@ export function Dashboard() {
 
       {/* Stats Grid */}
       {isVisible('stats') && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div
+          className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
           {[
             { icon: CheckCircle2, color: 'bg-violet-100 dark:bg-violet-900/30', iconColor: 'text-violet-600', value: `${completedTasks}/${totalTasks}`, label: 'Tasks Done' },
             { icon: Flame, color: 'bg-orange-100 dark:bg-orange-900/30', iconColor: 'text-orange-500', value: `${todaysHabits}/${state.habits.length}`, label: 'Habits Today' },
             { icon: IndianRupee, color: 'bg-emerald-100 dark:bg-emerald-900/30', iconColor: 'text-emerald-600', value: `₹${(totalIncome - totalExpenses).toLocaleString()}`, label: 'Net Balance' },
             { icon: Calendar, color: 'bg-cyan-100 dark:bg-cyan-900/30', iconColor: 'text-cyan-600', value: String(todaysEvents), label: 'Events Today' },
           ].map(({ icon: Icon, color, iconColor, value, label }) => (
-            <div key={label} className={`rounded-2xl p-4 lg:p-5 shadow-sm border ${card} transition-colors duration-300`}>
+            <motion.div
+              key={label}
+              variants={staggerItem}
+              whileHover={{ y: -4, transition: { duration: 0.15 } }}
+              className={`rounded-2xl p-4 lg:p-5 shadow-sm border cursor-default ${card} transition-colors duration-300`}
+            >
               <div className="flex items-center gap-3">
                 <div className={`h-11 w-11 rounded-xl ${color} flex items-center justify-center shrink-0`}>
                   <Icon className={`h-5 w-5 ${iconColor}`} />
@@ -252,21 +271,28 @@ export function Dashboard() {
                   <p className={`text-xs ${subText}`}>{label}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Productivity Score */}
       {isVisible('score') && (
-        <div className="bg-gradient-to-r from-violet-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-200/40 dark:shadow-indigo-900/30">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="bg-gradient-to-r from-violet-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-200/40 dark:shadow-indigo-900/30"
+        >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="h-5 w-5" />
                 <span className="text-sm font-medium text-white/80">Productivity Score</span>
               </div>
-              <div className="text-6xl font-extrabold">{productivityScore}</div>
+              <div className="text-6xl font-extrabold">
+                <AnimatedNumber value={productivityScore} duration={900} />
+              </div>
               <p className="text-white/70 mt-1 text-sm">out of 100 points</p>
             </div>
             <div className="flex-1 max-w-sm space-y-2.5 text-sm">
@@ -286,8 +312,9 @@ export function Dashboard() {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
+
 
       {/* New widgets row: Pomodoro + Goals + Mood */}
       <div className="grid lg:grid-cols-3 gap-4">
@@ -369,7 +396,7 @@ export function Dashboard() {
               <div key={challenge.id} className={`p-4 rounded-xl ${challenge.completed
                 ? isDark ? 'bg-emerald-900/20 border border-emerald-800' : 'bg-emerald-50 border border-emerald-200'
                 : isDark ? 'bg-gray-800/50' : 'bg-white/80'
-              }`}>
+                }`}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className={`text-sm font-semibold ${challenge.completed ? (isDark ? 'text-emerald-400' : 'text-emerald-700') : (isDark ? 'text-white' : 'text-slate-900')}`}>
                     {challenge.completed && '✅ '}{challenge.title}
