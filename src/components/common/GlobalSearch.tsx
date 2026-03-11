@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, StickyNote, CheckSquare, DollarSign, Calendar, Target, BookOpen, Clock } from 'lucide-react';
+import { Search, X, StickyNote, CheckSquare, DollarSign, Calendar, Target, BookOpen } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useApp } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';

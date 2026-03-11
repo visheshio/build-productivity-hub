@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Trophy, Lock, Star } from 'lucide-react';
+import { Lock, Star } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
 import { format } from 'date-fns';

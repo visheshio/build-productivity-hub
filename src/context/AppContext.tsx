@@ -1,6 +1,26 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState, useCallback, ReactNode } from 'react';
 import { Note, Todo, Expense, Budget, Habit, Event, Reminder, Goal, PomodoroSession, TimeEntry, JournalEntry, Achievement, AchievementType, DailyChallenge } from '../types';
 import { v4 as uuidv4 } from 'uuid';
+import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabase';
+import toast from 'react-hot-toast';
+
+// ─── Services ────────────────────────────────────────────────────────────────
+import * as notesService from '../lib/services/notes.service';
+import * as todosService from '../lib/services/todos.service';
+import * as expensesService from '../lib/services/expenses.service';
+import * as budgetsService from '../lib/services/budgets.service';
+import * as habitsService from '../lib/services/habits.service';
+import * as eventsService from '../lib/services/events.service';
+import * as remindersService from '../lib/services/reminders.service';
+import * as goalsService from '../lib/services/goals.service';
+import * as pomodoroService from '../lib/services/pomodoro.service';
+import * as timeEntriesService from '../lib/services/time-entries.service';
+import * as journalService from '../lib/services/journal.service';
+import * as achievementsService from '../lib/services/achievements.service';
+import * as challengesService from '../lib/services/challenges.service';
+
+// ─── State Types ─────────────────────────────────────────────────────────────
 
 export interface AppState {
   notes: Note[];
@@ -65,361 +85,25 @@ type Action =
   | { type: 'COMPLETE_CHALLENGE'; payload: string }
   | { type: 'LOAD_STATE'; payload: AppState };
 
-// Generate sample dates
-const today = new Date();
-const yesterday = new Date(Date.now() - 86400000);
-const twoDaysAgo = new Date(Date.now() - 2 * 86400000);
-const threeDaysAgo = new Date(Date.now() - 3 * 86400000);
-const fourDaysAgo = new Date(Date.now() - 4 * 86400000);
-const tomorrow = new Date(Date.now() + 86400000);
-const nextWeek = new Date(Date.now() + 7 * 86400000);
+// ─── Initial State ───────────────────────────────────────────────────────────
 
-const formatDateStr = (d: Date) => d.toISOString().split('T')[0];
-
-const sampleNotes = [
-  {
-    id: 'note-1',
-    title: 'Welcome to ProductivityHub! 🎉',
-    content: 'This is your personal productivity suite. Use the sidebar to navigate between different features:\n\n• Notes - Capture ideas and thoughts\n• To-Do List - Manage your tasks\n• Expenses - Track your finances\n• Habits - Build better habits\n• Scheduler - Plan your calendar\n• Reminders - Never forget important things',
-    tags: ['important', 'personal'],
-    isPinned: true,
-    createdAt: yesterday,
-    updatedAt: yesterday,
-  },
-  {
-    id: 'note-2',
-    title: 'Project Ideas',
-    content: '1. Build a mobile app\n2. Learn a new programming language\n3. Start a blog\n4. Create an online course',
-    tags: ['ideas', 'work'],
-    isPinned: false,
-    createdAt: twoDaysAgo,
-    updatedAt: twoDaysAgo,
-  },
-  {
-    id: 'note-3',
-    title: 'Meeting Notes',
-    content: 'Key takeaways from today\'s meeting:\n- New project deadline is next month\n- Need to review the design specs\n- Schedule follow-up with the team',
-    tags: ['work'],
-    isPinned: false,
-    createdAt: threeDaysAgo,
-    updatedAt: threeDaysAgo,
-  },
-];
-
-const sampleTodos = [
-  {
-    id: 'todo-1',
-    title: 'Complete project proposal',
-    description: 'Draft and finalize the Q4 project proposal document',
-    status: 'in-progress' as const,
-    priority: 'high' as const,
-    dueDate: tomorrow,
-    category: 'Work',
-    checklist: [
-      { id: 'cl-1', text: 'Write executive summary', completed: true },
-      { id: 'cl-2', text: 'Add budget estimates', completed: false },
-      { id: 'cl-3', text: 'Review with team', completed: false },
-    ],
-    createdAt: twoDaysAgo,
-  },
-  {
-    id: 'todo-2',
-    title: 'Buy groceries',
-    description: 'Weekly grocery shopping',
-    status: 'pending' as const,
-    priority: 'medium' as const,
-    dueDate: today,
-    category: 'Personal',
-    checklist: [
-      { id: 'cl-4', text: 'Milk', completed: false },
-      { id: 'cl-5', text: 'Bread', completed: false },
-      { id: 'cl-6', text: 'Fruits', completed: false },
-    ],
-    createdAt: yesterday,
-  },
-  {
-    id: 'todo-3',
-    title: 'Read documentation',
-    description: 'Review the new API documentation',
-    status: 'completed' as const,
-    priority: 'low' as const,
-    dueDate: yesterday,
-    category: 'Learning',
-    checklist: [],
-    createdAt: threeDaysAgo,
-  },
-  {
-    id: 'todo-4',
-    title: 'Schedule dentist appointment',
-    description: 'Annual dental checkup',
-    status: 'pending' as const,
-    priority: 'medium' as const,
-    dueDate: nextWeek,
-    category: 'Health',
-    checklist: [],
-    createdAt: today,
-  },
-];
-
-const sampleExpenses = [
-  {
-    id: 'exp-1',
-    amount: 5000,
-    type: 'income' as const,
-    category: 'Salary',
-    description: 'Monthly salary',
-    date: new Date(today.getFullYear(), today.getMonth(), 1),
-    isRecurring: true,
-  },
-  {
-    id: 'exp-2',
-    amount: 120,
-    type: 'expense' as const,
-    category: 'Food',
-    description: 'Weekly groceries',
-    date: yesterday,
-    isRecurring: false,
-  },
-  {
-    id: 'exp-3',
-    amount: 50,
-    type: 'expense' as const,
-    category: 'Transport',
-    description: 'Gas',
-    date: twoDaysAgo,
-    isRecurring: false,
-  },
-  {
-    id: 'exp-4',
-    amount: 200,
-    type: 'expense' as const,
-    category: 'Bills',
-    description: 'Internet and phone',
-    date: threeDaysAgo,
-    isRecurring: true,
-  },
-  {
-    id: 'exp-5',
-    amount: 45,
-    type: 'expense' as const,
-    category: 'Entertainment',
-    description: 'Movie tickets',
-    date: fourDaysAgo,
-    isRecurring: false,
-  },
-  {
-    id: 'exp-6',
-    amount: 500,
-    type: 'income' as const,
-    category: 'Freelance',
-    description: 'Side project payment',
-    date: twoDaysAgo,
-    isRecurring: false,
-  },
-];
-
-const sampleBudgets = [
-  {
-    id: 'budget-1',
-    category: 'Food',
-    amount: 500,
-    month: today.getMonth() + 1,
-    year: today.getFullYear(),
-  },
-  {
-    id: 'budget-2',
-    category: 'Transport',
-    amount: 200,
-    month: today.getMonth() + 1,
-    year: today.getFullYear(),
-  },
-  {
-    id: 'budget-3',
-    category: 'Entertainment',
-    amount: 150,
-    month: today.getMonth() + 1,
-    year: today.getFullYear(),
-  },
-];
-
-const sampleHabits = [
-  {
-    id: 'habit-1',
-    name: 'Morning Exercise',
-    frequency: 'daily' as const,
-    category: 'health' as const,
-    streakCount: 5,
-    completedDates: [
-      formatDateStr(today),
-      formatDateStr(yesterday),
-      formatDateStr(twoDaysAgo),
-      formatDateStr(threeDaysAgo),
-      formatDateStr(fourDaysAgo),
-    ],
-    createdAt: new Date(Date.now() - 14 * 86400000),
-  },
-  {
-    id: 'habit-2',
-    name: 'Read 30 minutes',
-    frequency: 'daily' as const,
-    category: 'learning' as const,
-    streakCount: 3,
-    completedDates: [
-      formatDateStr(today),
-      formatDateStr(yesterday),
-      formatDateStr(twoDaysAgo),
-    ],
-    createdAt: new Date(Date.now() - 10 * 86400000),
-  },
-  {
-    id: 'habit-3',
-    name: 'Meditate',
-    frequency: 'daily' as const,
-    category: 'health' as const,
-    streakCount: 2,
-    completedDates: [
-      formatDateStr(yesterday),
-      formatDateStr(twoDaysAgo),
-    ],
-    createdAt: new Date(Date.now() - 7 * 86400000),
-  },
-  {
-    id: 'habit-4',
-    name: 'Review weekly goals',
-    frequency: 'weekly' as const,
-    category: 'productivity' as const,
-    streakCount: 1,
-    completedDates: [formatDateStr(yesterday)],
-    createdAt: new Date(Date.now() - 21 * 86400000),
-  },
-];
-
-const sampleEvents = [
-  {
-    id: 'event-1',
-    title: 'Team Meeting',
-    description: 'Weekly team sync-up',
-    startTime: new Date(today.setHours(10, 0, 0)),
-    endTime: new Date(today.setHours(11, 0, 0)),
-    reminderTime: null,
-    color: '#8b5cf6',
-  },
-  {
-    id: 'event-2',
-    title: 'Lunch with Client',
-    description: 'Discuss new project requirements',
-    startTime: new Date(tomorrow.setHours(12, 30, 0)),
-    endTime: new Date(tomorrow.setHours(14, 0, 0)),
-    reminderTime: null,
-    color: '#10b981',
-  },
-  {
-    id: 'event-3',
-    title: 'Project Deadline',
-    description: 'Submit final deliverables',
-    startTime: new Date(nextWeek.setHours(17, 0, 0)),
-    endTime: new Date(nextWeek.setHours(18, 0, 0)),
-    reminderTime: null,
-    color: '#ef4444',
-  },
-];
-
-const sampleReminders = [
-  {
-    id: 'reminder-1',
-    title: 'Review this app\'s features',
-    referenceType: 'custom' as const,
-    referenceId: null,
-    remindAt: new Date(Date.now() + 3600000), // 1 hour from now
-    isSent: false,
-    snoozedUntil: null,
-  },
-];
-
-const sampleGoals: Goal[] = [
-  {
-    id: 'goal-1',
-    title: 'Learn React Advanced Patterns',
-    description: 'Master advanced React patterns including compound components, render props, and hooks.',
-    category: 'career',
-    targetDate: new Date(Date.now() + 30 * 86400000),
-    progress: 40,
-    milestones: [
-      { id: 'ms-1', title: 'Complete hooks tutorial', completed: true },
-      { id: 'ms-2', title: 'Build a compound component', completed: true },
-      { id: 'ms-3', title: 'Master render props', completed: false },
-      { id: 'ms-4', title: 'Build a real project', completed: false },
-    ],
-    linkedTaskIds: ['todo-3'],
-    linkedHabitIds: ['habit-2'],
-    createdAt: new Date(Date.now() - 14 * 86400000),
-    updatedAt: yesterday,
-  },
-  {
-    id: 'goal-2',
-    title: 'Get Fit This Quarter',
-    description: 'Exercise regularly and improve overall health.',
-    category: 'health',
-    targetDate: new Date(Date.now() + 60 * 86400000),
-    progress: 60,
-    milestones: [
-      { id: 'ms-5', title: 'Exercise 5 days/week for 2 weeks', completed: true },
-      { id: 'ms-6', title: 'Run 5K without stopping', completed: true },
-      { id: 'ms-7', title: 'Reach target weight', completed: true },
-      { id: 'ms-8', title: 'Maintain for 1 month', completed: false },
-    ],
-    linkedTaskIds: [],
-    linkedHabitIds: ['habit-1', 'habit-3'],
-    createdAt: new Date(Date.now() - 21 * 86400000),
-    updatedAt: twoDaysAgo,
-  },
-];
-
-const sampleJournalEntries: JournalEntry[] = [
-  {
-    id: 'journal-1',
-    content: 'Had a really productive day today. Finished the project proposal and got great feedback from the team. Feeling motivated to keep going!',
-    moodRating: 5,
-    gratitude: ['Great team collaboration', 'Good weather for a walk'],
-    date: yesterday,
-    createdAt: yesterday,
-  },
-  {
-    id: 'journal-2',
-    content: 'A bit tired today but still managed to get through my tasks. Need to focus on getting more sleep.',
-    moodRating: 3,
-    gratitude: ['Healthy lunch', 'Finished reading a chapter'],
-    date: twoDaysAgo,
-    createdAt: twoDaysAgo,
-  },
-];
-
-const defaultAchievements: Achievement[] = [
-  { id: 'ach-1', type: 'streak_master', title: 'Streak Master', description: 'Maintain a 30-day habit streak', criteria: '30-day streak on any habit', icon: '🔥', unlockedAt: null },
-  { id: 'ach-2', type: 'task_crusher', title: 'Task Crusher', description: 'Complete 100 tasks', criteria: 'Complete 100 total tasks', icon: '💪', unlockedAt: null },
-  { id: 'ach-3', type: 'budget_pro', title: 'Budget Pro', description: 'Stay within budget for 3 months', criteria: 'Under budget for 3 consecutive months', icon: '💰', unlockedAt: null },
-  { id: 'ach-4', type: 'early_bird', title: 'Early Bird', description: 'Complete 5 tasks before 9 AM', criteria: '5 tasks completed before 9 AM', icon: '🌅', unlockedAt: null },
-  { id: 'ach-5', type: 'note_taker', title: 'Note Taker', description: 'Create 50 notes', criteria: 'Create 50 total notes', icon: '📝', unlockedAt: null },
-  { id: 'ach-6', type: 'focus_champion', title: 'Focus Champion', description: 'Complete 50 Pomodoro sessions', criteria: '50 completed focus sessions', icon: '🎯', unlockedAt: null },
-  { id: 'ach-7', type: 'goal_setter', title: 'Goal Setter', description: 'Complete 5 goals', criteria: '5 goals at 100% progress', icon: '🏆', unlockedAt: null },
-  { id: 'ach-8', type: 'journal_keeper', title: 'Journal Keeper', description: 'Write journal entries for 30 days', criteria: '30 journal entries', icon: '📓', unlockedAt: null },
-];
-
-const initialState: AppState = {
-  notes: sampleNotes,
-  todos: sampleTodos,
-  expenses: sampleExpenses,
-  budgets: sampleBudgets,
-  habits: sampleHabits,
-  events: sampleEvents,
-  reminders: sampleReminders,
-  goals: sampleGoals,
+const emptyState: AppState = {
+  notes: [],
+  todos: [],
+  expenses: [],
+  budgets: [],
+  habits: [],
+  events: [],
+  reminders: [],
+  goals: [],
   pomodoroSessions: [],
   timeEntries: [],
-  journalEntries: sampleJournalEntries,
-  achievements: defaultAchievements,
+  journalEntries: [],
+  achievements: [],
   dailyChallenges: [],
 };
+
+// ─── Streak Calculator ──────────────────────────────────────────────────────
 
 function calculateStreak(completedDates: string[]): number {
   if (completedDates.length === 0) return 0;
@@ -445,6 +129,8 @@ function calculateStreak(completedDates: string[]): number {
 
   return streak;
 }
+
+// ─── Reducer ─────────────────────────────────────────────────────────────────
 
 function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -756,70 +442,355 @@ function appReducer(state: AppState, action: Action): AppState {
   }
 }
 
+// ─── Context ─────────────────────────────────────────────────────────────────
+
 interface AppContextType {
   state: AppState;
   dispatch: React.Dispatch<Action>;
+  isLoading: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export function AppProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, initialState);
+// ─── Provider ────────────────────────────────────────────────────────────────
 
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(appReducer, emptyState);
+  const [isLoading, setIsLoading] = useState(true);
+  const { session } = useAuth();
+
+  // ─── Fetch all data from Supabase on mount / auth change ───────────
   useEffect(() => {
-    const savedState = localStorage.getItem('productivityHubState');
-    if (savedState) {
+    if (!session?.user) {
+      dispatch({ type: 'LOAD_STATE', payload: emptyState });
+      setIsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadAll() {
+      setIsLoading(true);
       try {
-        const parsed = JSON.parse(savedState, (key, value) => {
-          if (
-            key === 'createdAt' ||
-            key === 'updatedAt' ||
-            key === 'dueDate' ||
-            key === 'date' ||
-            key === 'startTime' ||
-            key === 'endTime' ||
-            key === 'reminderTime' ||
-            key === 'remindAt' ||
-            key === 'snoozedUntil' ||
-            key === 'targetDate' ||
-            key === 'completedAt' ||
-            key === 'unlockedAt'
-          ) {
-            return value ? new Date(value) : null;
-          }
-          return value;
-        });
-        // Only load if there's meaningful data
-        if (parsed && (parsed.notes?.length > 0 || parsed.todos?.length > 0 || parsed.habits?.length > 0)) {
-          // Ensure new state slices exist with defaults for upgrades
-          const merged: AppState = {
-            ...initialState,
-            ...parsed,
-            goals: parsed.goals ?? initialState.goals,
-            pomodoroSessions: parsed.pomodoroSessions ?? [],
-            timeEntries: parsed.timeEntries ?? [],
-            journalEntries: parsed.journalEntries ?? initialState.journalEntries,
-            achievements: parsed.achievements ?? defaultAchievements,
-            dailyChallenges: parsed.dailyChallenges ?? [],
-          };
-          dispatch({ type: 'LOAD_STATE', payload: merged });
+        const [
+          notes,
+          todos,
+          expenses,
+          budgets,
+          habits,
+          events,
+          reminders,
+          goals,
+          pomodoroSessions,
+          timeEntries,
+          journalEntries,
+          achievements,
+          dailyChallenges,
+        ] = await Promise.all([
+          notesService.fetchNotes(),
+          todosService.fetchTodos(),
+          expensesService.fetchExpenses(),
+          budgetsService.fetchBudgets(),
+          habitsService.fetchHabits(),
+          eventsService.fetchEvents(),
+          remindersService.fetchReminders(),
+          goalsService.fetchGoals(),
+          pomodoroService.fetchPomodoroSessions(),
+          timeEntriesService.fetchTimeEntries(),
+          journalService.fetchJournalEntries(),
+          achievementsService.seedDefaultAchievements(),
+          challengesService.fetchDailyChallenges(),
+        ]);
+
+        if (!cancelled) {
+          dispatch({
+            type: 'LOAD_STATE',
+            payload: {
+              notes,
+              todos,
+              expenses,
+              budgets,
+              habits,
+              events,
+              reminders,
+              goals,
+              pomodoroSessions,
+              timeEntries,
+              journalEntries,
+              achievements,
+              dailyChallenges,
+            },
+          });
         }
-      } catch (e) {
-        console.error('Failed to parse saved state', e);
+      } catch (err) {
+        console.error('Failed to load data from Supabase:', err);
+        toast.error('Failed to load data. Check your connection.');
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     }
-  }, []);
 
+    loadAll();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id]);
+
+  // ─── Supabase Realtime — full refresh on any change ────────────────
   useEffect(() => {
-    localStorage.setItem('productivityHubState', JSON.stringify(state));
+    if (!session?.user) return;
+
+    // Debounced refetch to avoid spamming on batch operations
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    const debouncedRefetch = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        try {
+          const [
+            notes, todos, expenses, budgets, habits, events, reminders,
+            goals, pomodoroSessions, timeEntries, journalEntries,
+            achievements, dailyChallenges,
+          ] = await Promise.all([
+            notesService.fetchNotes(),
+            todosService.fetchTodos(),
+            expensesService.fetchExpenses(),
+            budgetsService.fetchBudgets(),
+            habitsService.fetchHabits(),
+            eventsService.fetchEvents(),
+            remindersService.fetchReminders(),
+            goalsService.fetchGoals(),
+            pomodoroService.fetchPomodoroSessions(),
+            timeEntriesService.fetchTimeEntries(),
+            journalService.fetchJournalEntries(),
+            achievementsService.fetchAchievements(),
+            challengesService.fetchDailyChallenges(),
+          ]);
+          dispatch({
+            type: 'LOAD_STATE',
+            payload: {
+              notes, todos, expenses, budgets, habits, events, reminders,
+              goals, pomodoroSessions, timeEntries, journalEntries,
+              achievements, dailyChallenges,
+            },
+          });
+        } catch (err) {
+          console.error('Realtime sync error:', err);
+        }
+      }, 500);
+    };
+
+    const channel = supabase
+      .channel('app-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public' }, () => {
+        debouncedRefetch();
+      })
+      .subscribe();
+
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id]);
+
+  // ─── Wrap dispatch to sync with Supabase ───────────────────────────
+  const syncDispatch = useCallback(
+    (action: Action) => {
+      // Optimistic local update first
+      dispatch(action);
+
+      // Fire-and-forget Supabase sync
+      (async () => {
+        try {
+          switch (action.type) {
+            // Notes
+            case 'ADD_NOTE':
+              await notesService.createNote(action.payload);
+              break;
+            case 'UPDATE_NOTE':
+              await notesService.updateNote(action.payload);
+              break;
+            case 'DELETE_NOTE':
+              await notesService.deleteNote(action.payload);
+              break;
+            case 'TOGGLE_PIN_NOTE': {
+              const note = state.notes.find((n) => n.id === action.payload);
+              if (note) await notesService.togglePinNote(action.payload, note.isPinned);
+              break;
+            }
+
+            // Todos
+            case 'ADD_TODO':
+              await todosService.createTodo(action.payload);
+              break;
+            case 'UPDATE_TODO':
+              await todosService.updateTodo(action.payload);
+              break;
+            case 'DELETE_TODO':
+              await todosService.deleteTodo(action.payload);
+              break;
+
+            // Expenses
+            case 'ADD_EXPENSE':
+              await expensesService.createExpense(action.payload);
+              break;
+            case 'UPDATE_EXPENSE':
+              await expensesService.updateExpense(action.payload);
+              break;
+            case 'DELETE_EXPENSE':
+              await expensesService.deleteExpense(action.payload);
+              break;
+
+            // Budgets
+            case 'SET_BUDGET':
+              await budgetsService.upsertBudget(action.payload);
+              break;
+
+            // Habits
+            case 'ADD_HABIT':
+              await habitsService.createHabit(action.payload);
+              break;
+            case 'UPDATE_HABIT':
+              await habitsService.updateHabit(action.payload);
+              break;
+            case 'DELETE_HABIT':
+              await habitsService.deleteHabit(action.payload);
+              break;
+            case 'COMPLETE_HABIT': {
+              const habit = state.habits.find((h) => h.id === action.payload.id);
+              if (habit) {
+                const newCompletedDates = habit.completedDates.includes(action.payload.date)
+                  ? habit.completedDates.filter((d) => d !== action.payload.date)
+                  : [...habit.completedDates, action.payload.date];
+                const newStreak = calculateStreak(newCompletedDates);
+                await habitsService.toggleHabitCompletion(action.payload.id, action.payload.date, newStreak);
+              }
+              break;
+            }
+
+            // Events
+            case 'ADD_EVENT':
+              await eventsService.createEvent(action.payload);
+              break;
+            case 'UPDATE_EVENT':
+              await eventsService.updateEvent(action.payload);
+              break;
+            case 'DELETE_EVENT':
+              await eventsService.deleteEvent(action.payload);
+              break;
+
+            // Reminders
+            case 'ADD_REMINDER':
+              await remindersService.createReminder(action.payload);
+              break;
+            case 'UPDATE_REMINDER':
+              await remindersService.updateReminder(action.payload);
+              break;
+            case 'DELETE_REMINDER':
+              await remindersService.deleteReminder(action.payload);
+              break;
+            case 'DISMISS_REMINDER':
+              await remindersService.dismissReminder(action.payload);
+              break;
+            case 'SNOOZE_REMINDER':
+              await remindersService.snoozeReminder(action.payload.id, action.payload.until);
+              break;
+
+            // Goals
+            case 'ADD_GOAL':
+              await goalsService.createGoal(action.payload);
+              break;
+            case 'UPDATE_GOAL':
+              await goalsService.updateGoal(action.payload);
+              break;
+            case 'DELETE_GOAL':
+              await goalsService.deleteGoal(action.payload);
+              break;
+
+            // Pomodoro
+            case 'ADD_POMODORO_SESSION':
+              await pomodoroService.createPomodoroSession(action.payload);
+              break;
+            case 'DELETE_POMODORO_SESSION':
+              await pomodoroService.deletePomodoroSession(action.payload);
+              break;
+
+            // Time Entries
+            case 'ADD_TIME_ENTRY':
+              await timeEntriesService.createTimeEntry(action.payload);
+              break;
+            case 'UPDATE_TIME_ENTRY':
+              await timeEntriesService.updateTimeEntry(action.payload);
+              break;
+            case 'DELETE_TIME_ENTRY':
+              await timeEntriesService.deleteTimeEntry(action.payload);
+              break;
+
+            // Journal
+            case 'ADD_JOURNAL_ENTRY':
+              await journalService.createJournalEntry(action.payload);
+              break;
+            case 'UPDATE_JOURNAL_ENTRY':
+              await journalService.updateJournalEntry(action.payload);
+              break;
+            case 'DELETE_JOURNAL_ENTRY':
+              await journalService.deleteJournalEntry(action.payload);
+              break;
+
+            // Achievements
+            case 'UNLOCK_ACHIEVEMENT':
+              await achievementsService.unlockAchievement(action.payload);
+              break;
+
+            // Daily Challenges
+            case 'SET_DAILY_CHALLENGES':
+              await challengesService.setDailyChallenges(action.payload);
+              break;
+            case 'UPDATE_CHALLENGE_PROGRESS': {
+              const challenge = state.dailyChallenges.find((c) => c.id === action.payload.id);
+              if (challenge) {
+                await challengesService.updateChallengeProgress(
+                  action.payload.id,
+                  action.payload.currentCount,
+                  challenge.targetCount
+                );
+              }
+              break;
+            }
+            case 'COMPLETE_CHALLENGE': {
+              const ch = state.dailyChallenges.find((c) => c.id === action.payload);
+              if (ch) await challengesService.completeChallenge(action.payload, ch.targetCount);
+              break;
+            }
+
+            // LOAD_STATE is local-only
+            case 'LOAD_STATE':
+              break;
+          }
+        } catch (err) {
+          console.error(`Supabase sync error [${action.type}]:`, err);
+          toast.error('Failed to sync changes. They will be retried.');
+        }
+      })();
+    },
+    [state]
+  );
+
+  // ─── Also persist to localStorage as offline fallback ──────────────
+  useEffect(() => {
+    if (state !== emptyState) {
+      localStorage.setItem('productivityHubState', JSON.stringify(state));
+    }
   }, [state]);
 
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
+    <AppContext.Provider value={{ state, dispatch: syncDispatch, isLoading }}>
       {children}
     </AppContext.Provider>
   );
 }
+
+// ─── Hook ────────────────────────────────────────────────────────────────────
 
 export function useApp() {
   const context = useContext(AppContext);

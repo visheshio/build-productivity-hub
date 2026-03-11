@@ -12,7 +12,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { MotivationBar } from './MotivationBar';
 import { GlobalSearch } from './GlobalSearch';
 import { DataExport } from './DataExport';
-import { staggerContainer, staggerItem, slideLeft } from '../../utils/animations';
+import { staggerContainer, staggerItem } from '../../utils/animations';
 
 const navSections = [
   {

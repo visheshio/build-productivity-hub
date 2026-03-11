@@ -34,14 +34,15 @@ const cardVariants = {
 };
 
 export function AuthPage() {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [shakeError, setShakeError] = useState(false);
@@ -56,7 +57,22 @@ export function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
     setLoading(true);
+
+    if (mode === 'forgot') {
+      const result = await resetPassword(email);
+      setLoading(false);
+      if (result.error) {
+        setError(result.error);
+        setShakeError(true);
+        setTimeout(() => setShakeError(false), 500);
+      } else {
+        setSuccessMsg('Password reset email sent! Check your inbox.');
+      }
+      return;
+    }
+
     const result =
       mode === 'signin'
         ? await signIn(email, password)
@@ -95,8 +111,8 @@ export function AuthPage() {
           whileTap={{ scale: 0.96 }}
           onClick={toggleTheme}
           className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${isDark
-              ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
-              : 'bg-white text-slate-700 hover:bg-slate-100 shadow-sm border border-slate-200'
+            ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+            : 'bg-white text-slate-700 hover:bg-slate-100 shadow-sm border border-slate-200'
             }`}
         >
           {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-500" />}
@@ -184,13 +200,13 @@ export function AuthPage() {
               {(['signin', 'signup'] as const).map((m) => (
                 <motion.button
                   key={m}
-                  onClick={() => { setMode(m); setError(''); }}
+                  onClick={() => { setMode(m); setError(''); setSuccessMsg(''); }}
                   whileTap={{ scale: 0.97 }}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === m
-                      ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-lg'
-                      : isDark
-                        ? 'text-gray-400 hover:text-white'
-                        : 'text-slate-500 hover:text-slate-900'
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${(mode === m || (mode === 'forgot' && m === 'signin'))
+                    ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-lg'
+                    : isDark
+                      ? 'text-gray-400 hover:text-white'
+                      : 'text-slate-500 hover:text-slate-900'
                     }`}
                 >
                   {m === 'signin' ? 'Sign In' : 'Sign Up'}
@@ -208,12 +224,14 @@ export function AuthPage() {
                 className="mb-6"
               >
                 <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                  {mode === 'signin' ? 'Welcome back 👋' : 'Create your account 🚀'}
+                  {mode === 'forgot' ? 'Reset password 🔑' : mode === 'signin' ? 'Welcome back 👋' : 'Create your account 🚀'}
                 </h3>
                 <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                  {mode === 'signin'
-                    ? 'Sign in to continue your productivity journey.'
-                    : 'Join thousands building better habits every day.'}
+                  {mode === 'forgot'
+                    ? 'Enter your email and we\'ll send a reset link.'
+                    : mode === 'signin'
+                      ? 'Sign in to continue your productivity journey.'
+                      : 'Join thousands building better habits every day.'}
                 </p>
               </motion.div>
             </AnimatePresence>
@@ -239,8 +257,8 @@ export function AuthPage() {
                         placeholder="Alex Johnson"
                         required
                         className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm outline-none transition-all ${isDark
-                            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-violet-500'
-                            : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100'
+                          ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-violet-500'
+                          : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100'
                           }`}
                       />
                     </div>
@@ -261,44 +279,55 @@ export function AuthPage() {
                     placeholder="alex@example.com"
                     required
                     className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm outline-none transition-all ${isDark
-                        ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-violet-500'
-                        : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100'
+                      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-violet-500'
+                      : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100'
                       }`}
                   />
                 </div>
               </div>
 
-              <div>
-                <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
-                  <input
-                    type={showPass ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    minLength={6}
-                    className={`w-full pl-10 pr-12 py-3 rounded-xl border text-sm outline-none transition-all ${isDark
+              {mode !== 'forgot' && (
+                <div>
+                  <label className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
+                    <input
+                      type={showPass ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      minLength={6}
+                      className={`w-full pl-10 pr-12 py-3 rounded-xl border text-sm outline-none transition-all ${isDark
                         ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-violet-500'
                         : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100'
-                      }`}
-                  />
-                  <motion.button
-                    type="button"
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setShowPass(!showPass)}
-                    className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-slate-400 hover:text-slate-600'}`}
-                  >
-                    {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </motion.button>
+                        }`}
+                    />
+                    <motion.button
+                      type="button"
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setShowPass(!showPass)}
+                      className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </motion.button>
+                  </div>
+                  {mode === 'signup' && (
+                    <p className={`text-xs mt-1.5 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>Minimum 6 characters</p>
+                  )}
+                  {mode === 'signin' && (
+                    <button
+                      type="button"
+                      onClick={() => { setMode('forgot'); setError(''); setSuccessMsg(''); }}
+                      className={`text-xs mt-2 font-medium ${isDark ? 'text-violet-400 hover:text-violet-300' : 'text-violet-600 hover:text-violet-700'} transition-colors`}
+                    >
+                      Forgot password?
+                    </button>
+                  )}
                 </div>
-                {mode === 'signup' && (
-                  <p className={`text-xs mt-1.5 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>Minimum 6 characters</p>
-                )}
-              </div>
+              )}
 
               <AnimatePresence>
                 {error && (
@@ -315,6 +344,18 @@ export function AuthPage() {
                     className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm rounded-xl px-4 py-3"
                   >
                     {error}
+                  </motion.div>
+                )}
+                {successMsg && (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 text-sm rounded-xl px-4 py-3"
+                  >
+                    {successMsg}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -338,11 +379,11 @@ export function AuthPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                     </motion.svg>
-                    {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
+                    {mode === 'forgot' ? 'Sending...' : mode === 'signin' ? 'Signing in...' : 'Creating account...'}
                   </span>
                 ) : (
                   <>
-                    {mode === 'signin' ? 'Sign In' : 'Create Account'}
+                    {mode === 'forgot' ? 'Send Reset Link' : mode === 'signin' ? 'Sign In' : 'Create Account'}
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -350,12 +391,16 @@ export function AuthPage() {
             </form>
 
             <p className={`text-center text-sm mt-6 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
-              {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
+              {mode === 'forgot'
+                ? 'Remember your password? '
+                : mode === 'signin'
+                  ? "Don't have an account? "
+                  : 'Already have an account? '}
               <button
-                onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); }}
+                onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); setSuccessMsg(''); }}
                 className="font-semibold text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"
               >
-                {mode === 'signin' ? 'Sign up free' : 'Sign in'}
+                {mode === 'forgot' ? 'Back to sign in' : mode === 'signin' ? 'Sign up free' : 'Sign in'}
               </button>
             </p>
 
@@ -372,8 +417,8 @@ export function AuthPage() {
                   }
                 })}
                 className={`w-full py-2.5 rounded-xl text-sm font-medium border transition-all ${isDark
-                    ? 'border-gray-700 text-gray-300 hover:bg-gray-800'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                  ? 'border-gray-700 text-gray-300 hover:bg-gray-800'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
               >
                 🚀 Continue as Demo User

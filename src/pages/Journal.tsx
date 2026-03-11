@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { BookOpen, Plus, Trash2, Edit3, Smile, X, TrendingUp } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Edit3, X, TrendingUp } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
 import { JournalEntry } from '../types';
 import { format, subDays } from 'date-fns';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 const MOOD_EMOJIS = ['😢', '😕', '😐', '🙂', '😄'];
 const MOOD_LABELS = ['Terrible', 'Bad', 'Okay', 'Good', 'Great'];
@@ -139,7 +139,7 @@ export function Journal() {
             <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 12, fill: isDark ? '#9ca3af' : '#64748b' }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ background: isDark ? '#1f2937' : '#fff', border: 'none', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-              formatter={(value: number) => [value ? `${MOOD_EMOJIS[value - 1]} ${MOOD_LABELS[value - 1]}` : 'No entry', 'Mood']}
+              formatter={(value: number | undefined) => [value ? `${MOOD_EMOJIS[value - 1]} ${MOOD_LABELS[value - 1]}` : 'No entry', 'Mood']}
             />
             <Area type="monotone" dataKey="mood" stroke="#8b5cf6" fill="url(#moodGradient)" strokeWidth={2} connectNulls dot={{ fill: '#8b5cf6', r: 4 }} />
           </AreaChart>

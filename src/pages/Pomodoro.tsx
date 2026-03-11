@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Timer, Play, Pause, RotateCcw, Coffee, Brain, Clock, Flame, Volume2, VolumeX, Trash2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, Coffee, Brain, Clock, Flame, Volume2, VolumeX, Trash2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
 import { format } from 'date-fns';

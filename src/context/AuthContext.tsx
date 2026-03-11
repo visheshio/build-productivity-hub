@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
+import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 export interface User {
   id: string;
@@ -10,44 +12,16 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (name: string, email: string, password: string) => Promise<{ error?: string }>;
-  signOut: () => void;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error?: string }>;
   updateProfile: (updates: Partial<Pick<User, 'name' | 'avatar'>>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const STORAGE_KEY = 'ph-auth-user';
-const ACCOUNTS_KEY = 'ph-auth-accounts';
-
-function getStoredUser(): User | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function getAccounts(): Record<string, { password: string; user: User }> {
-  try {
-    const raw = localStorage.getItem(ACCOUNTS_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 const AVATAR_COLORS = [
   'from-violet-500 to-indigo-600',
@@ -61,74 +35,106 @@ function randomColor(): string {
   return AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
 }
 
+function mapSupabaseUser(su: SupabaseUser): User {
+  const meta = su.user_metadata ?? {};
+  return {
+    id: su.id,
+    name: meta.name || meta.full_name || su.email?.split('@')[0] || 'User',
+    email: su.email || '',
+    avatar: meta.avatar || randomColor(),
+    createdAt: su.created_at,
+  };
+}
+
+export function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const stored = getStoredUser();
-    setUser(stored);
-    setIsLoading(false);
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+      setUser(s?.user ? mapSupabaseUser(s.user) : null);
+      setIsLoading(false);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+      setUser(s?.user ? mapSupabaseUser(s.user) : null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const signIn = async (email: string, password: string): Promise<{ error?: string }> => {
-    await new Promise((r) => setTimeout(r, 600));
-    const accounts = getAccounts();
-    const key = email.toLowerCase().trim();
-    const account = accounts[key];
-    if (!account) return { error: 'No account found with this email.' };
-    if (account.password !== password) return { error: 'Incorrect password.' };
-    setUser(account.user);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(account.user));
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (error) return { error: error.message };
     return {};
   };
 
   const signUp = async (name: string, email: string, password: string): Promise<{ error?: string }> => {
-    await new Promise((r) => setTimeout(r, 600));
     if (!name.trim()) return { error: 'Name is required.' };
     if (!email.includes('@')) return { error: 'Enter a valid email.' };
     if (password.length < 6) return { error: 'Password must be at least 6 characters.' };
 
-    const accounts = getAccounts();
-    const key = email.toLowerCase().trim();
-    if (accounts[key]) return { error: 'An account with this email already exists.' };
-
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      name: name.trim(),
-      email: key,
-      avatar: randomColor(),
-      createdAt: new Date().toISOString(),
-    };
-
-    accounts[key] = { password, user: newUser };
-    localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
-    setUser(newUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
+    const { error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: {
+          name: name.trim(),
+          avatar: randomColor(),
+        },
+      },
+    });
+    if (error) return { error: error.message };
     return {};
   };
 
-  const signOut = () => {
+  const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem(STORAGE_KEY);
+    setSession(null);
+  };
+
+  const resetPassword = async (email: string): Promise<{ error?: string }> => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/`,
+    });
+    if (error) return { error: error.message };
+    return {};
   };
 
   const updateProfile = (updates: Partial<Pick<User, 'name' | 'avatar'>>) => {
     if (!user) return;
     const updated = { ...user, ...updates };
     setUser(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-
-    const accounts = getAccounts();
-    const key = user.email;
-    if (accounts[key]) {
-      accounts[key].user = updated;
-      localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
-    }
+    // Also update Supabase user metadata
+    supabase.auth.updateUser({
+      data: { name: updated.name, avatar: updated.avatar },
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, signIn, signUp, signOut, updateProfile }}>
+    <AuthContext.Provider
+      value={{ user, session, isLoading, signIn, signUp, signOut, resetPassword, updateProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -139,5 +145,3 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
-
-export { getInitials };

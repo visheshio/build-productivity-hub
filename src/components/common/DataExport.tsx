@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Upload, FileJson, FileSpreadsheet, Check, AlertCircle } from 'lucide-react';
+import { Download, Upload, FileJson, FileSpreadsheet, AlertCircle } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useApp } from '../../context/AppContext';
 import toast from 'react-hot-toast';
