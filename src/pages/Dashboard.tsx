@@ -156,11 +156,13 @@ export function Dashboard() {
   });
 
   // Productivity score
-  const taskScore = totalTasks > 0 ? (completedTasks / totalTasks) * 30 : 15;
-  const habitScore = Math.min((habitStreakAvg / 30) * 25, 25);
-  const eventScore = 20;
-  const noteScore = Math.min(state.notes.length * 2, 15);
-  const budgetScore = totalExpenses <= totalIncome ? 10 : 5;
+  const taskScore = totalTasks > 0 ? (completedTasks / totalTasks) * 30 : 0;
+  const habitScore = state.habits.length > 0 
+    ? ((todaysHabits / state.habits.length) * 15) + Math.min((habitStreakAvg / 7) * 10, 10) 
+    : 0;
+  const eventScore = Math.min(state.events.length * 5, 20);
+  const noteScore = Math.min(state.notes.length * 3, 15);
+  const budgetScore = (totalIncome > 0 || totalExpenses > 0) ? (totalExpenses <= totalIncome ? 10 : 0) : 0;
   const productivityScore = Math.round(taskScore + habitScore + eventScore + noteScore + budgetScore);
 
   const expensesByCategory = state.expenses.filter((e) => e.type === 'expense').reduce((acc, e) => {
