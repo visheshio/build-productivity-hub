@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import { Modal } from '../components/common/Modal';
 import { ExportButton } from '../components/common/ExportButton';
 import { exportEvents } from '../utils/csvExport';
@@ -38,6 +39,15 @@ type ViewType = 'month' | 'week' | 'day';
 
 export function Scheduler() {
   const { state, dispatch } = useApp();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const card = isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-slate-200';
+  const cardTitle = isDark ? 'text-white' : 'text-slate-900';
+  const subText = isDark ? 'text-gray-400' : 'text-slate-500';
+  const inputCls = isDark
+    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-violet-500'
+    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -135,8 +145,8 @@ export function Scheduler() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">Plan Scheduler</h1>
-          <p className="text-slate-500 mt-1">Organize your events and appointments</p>
+          <h1 className={`text-2xl lg:text-3xl font-bold ${cardTitle}`}>Plan Scheduler</h1>
+          <p className={`${subText} mt-1`}>Organize your events and appointments</p>
         </div>
         <div className="flex gap-2">
           <ExportButton
@@ -156,26 +166,26 @@ export function Scheduler() {
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Calendar */}
-        <div className="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className={`flex-1 ${card} rounded-2xl border  shadow-sm overflow-hidden`}>
           {/* Calendar Header */}
           <div className="p-4 border-b border-slate-200">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <button onClick={navigatePrev} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                <button onClick={navigatePrev} className={`p-2 rounded-lg hover:${isDark ? 'bg-gray-800' : 'bg-slate-100'} transition-colors`}>
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <h2 className="text-lg font-semibold text-slate-900 min-w-[180px] text-center">
+                <h2 className={`text-lg font-semibold ${cardTitle} min-w-[180px] text-center`}>
                   {viewType === 'month'
                     ? format(viewDate, 'MMMM yyyy')
                     : viewType === 'week'
                       ? `Week of ${format(weekStart, 'MMM d')}`
                       : format(viewDate, 'EEEE, MMMM d, yyyy')}
                 </h2>
-                <button onClick={navigateNext} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                <button onClick={navigateNext} className={`p-2 rounded-lg hover:${isDark ? 'bg-gray-800' : 'bg-slate-100'} transition-colors`}>
                   <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
-              <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+              <div className={`flex gap-1 ${isDark ? 'bg-gray-800' : 'bg-slate-100'} p-1 rounded-lg`}>
                 {(['month', 'week', 'day'] as ViewType[]).map((v) => (
                   <button
                     key={v}
@@ -204,7 +214,7 @@ export function Scheduler() {
             <div className="p-4">
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                  <div key={day} className="text-center text-xs font-medium text-slate-400 py-2">
+                  <div key={day} className={`text-center text-xs font-medium ${isDark ? 'text-gray-500' : 'text-slate-400'} py-2`}>
                     {day}
                   </div>
                 ))}
@@ -244,7 +254,7 @@ export function Scheduler() {
                           </div>
                         ))}
                         {dayEvents.length > 2 && (
-                          <div className="text-xs text-slate-400 px-1">+{dayEvents.length - 2} more</div>
+                          <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-slate-400'} px-1`}>+{dayEvents.length - 2} more</div>
                         )}
                       </div>
                     </button>
@@ -258,13 +268,13 @@ export function Scheduler() {
           {viewType === 'week' && (
             <div className="p-4 overflow-x-auto">
               <div className="grid grid-cols-8 gap-1 min-w-[600px]">
-                <div className="text-xs font-medium text-slate-400 py-2" />
+                <div className={`text-xs font-medium ${isDark ? 'text-gray-500' : 'text-slate-400'} py-2`} />
                 {weekDays.map((day) => (
                   <div
                     key={day.toISOString()}
                     className={`text-center py-2 ${isToday(day) ? 'bg-violet-50 rounded-t-lg' : ''}`}
                   >
-                    <div className="text-xs text-slate-400">{format(day, 'EEE')}</div>
+                    <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{format(day, 'EEE')}</div>
                     <div
                       className={`text-lg font-medium ${isToday(day) ? 'text-violet-600' : 'text-slate-700'
                         }`}
@@ -277,7 +287,7 @@ export function Scheduler() {
               <div className="h-96 overflow-y-auto">
                 {hours.slice(6, 22).map((hour) => (
                   <div key={hour} className="grid grid-cols-8 gap-1 min-w-[600px]">
-                    <div className="text-xs text-slate-400 py-2 text-right pr-2">
+                    <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-slate-400'} py-2 text-right pr-2`}>
                       {format(new Date().setHours(hour, 0), 'ha')}
                     </div>
                     {weekDays.map((day) => {
@@ -323,10 +333,10 @@ export function Scheduler() {
                 return (
                   <div
                     key={hour}
-                    className="flex gap-4 border-t border-slate-100 min-h-[60px] hover:bg-slate-50 transition-colors cursor-pointer"
+                    className={`flex gap-4 border-t border-slate-100 min-h-[60px] hover:${isDark ? 'bg-gray-800' : 'bg-slate-50'} transition-colors cursor-pointer`}
                     onClick={() => openModal(undefined, new Date(viewDate.setHours(hour)))}
                   >
-                    <div className="text-sm text-slate-400 py-2 w-16 text-right flex-shrink-0">
+                    <div className={`text-sm ${isDark ? 'text-gray-500' : 'text-slate-400'} py-2 w-16 text-right flex-shrink-0`}>
                       {format(new Date().setHours(hour, 0), 'h:mm a')}
                     </div>
                     <div className="flex-1 py-1">
@@ -356,8 +366,8 @@ export function Scheduler() {
         </div>
 
         {/* Selected Day Events */}
-        <div className="lg:w-80 bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-          <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+        <div className={`lg:w-80 ${card} rounded-2xl border  shadow-sm p-4`}>
+          <h3 className={`font-semibold ${cardTitle} mb-4 flex items-center gap-2`}>
             <Calendar className="h-5 w-5 text-violet-500" />
             {format(selectedDate, 'EEEE, MMMM d')}
           </h3>
@@ -374,26 +384,26 @@ export function Scheduler() {
                       style={{ backgroundColor: event.color }}
                     />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-slate-900 truncate">{event.title}</h4>
-                      <div className="flex items-center gap-1 text-sm text-slate-500 mt-1">
+                      <h4 className={`font-medium ${cardTitle} truncate`}>{event.title}</h4>
+                      <div className={`flex items-center gap-1 text-sm ${subText} mt-1`}>
                         <Clock className="h-4 w-4" />
                         {format(new Date(event.startTime), 'h:mm a')} -{' '}
                         {format(new Date(event.endTime), 'h:mm a')}
                       </div>
                       {event.description && (
-                        <p className="text-sm text-slate-500 mt-1 line-clamp-2">{event.description}</p>
+                        <p className={`text-sm ${subText} mt-1 line-clamp-2`}>{event.description}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => openModal(event)}
-                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
+                        className={`p-1.5 rounded-lg hover:bg-slate-100 ${isDark ? 'text-gray-500' : 'text-slate-400'} transition-colors`}
                       >
                         <Edit2 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => dispatch({ type: 'DELETE_EVENT', payload: event.id })}
-                        className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                        className={`p-1.5 rounded-lg hover:bg-red-50 ${isDark ? 'text-gray-500' : 'text-slate-400'} hover:text-red-500 transition-colors`}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -403,7 +413,7 @@ export function Scheduler() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-slate-400">
+            <div className={`text-center py-8 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
               <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No events scheduled</p>
               <button
@@ -425,50 +435,50 @@ export function Scheduler() {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Event Title</label>
+            <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Event Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Event title..."
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              className={`w-full px-3 py-2 outline-none transition-all ${inputCls}  rounded-xl focus:ring-2 focus:ring-violet-500 `}
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+            <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Event description..."
               rows={3}
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+              className={`w-full px-3 py-2 outline-none transition-all ${inputCls}  rounded-xl focus:ring-2 focus:ring-violet-500  resize-none`}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Start Time</label>
+              <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Start Time</label>
               <input
                 type="datetime-local"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className={`w-full px-3 py-2 outline-none transition-all ${inputCls}  rounded-xl focus:ring-2 focus:ring-violet-500 `}
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">End Time</label>
+              <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>End Time</label>
               <input
                 type="datetime-local"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className={`w-full px-3 py-2 outline-none transition-all ${inputCls}  rounded-xl focus:ring-2 focus:ring-violet-500 `}
                 required
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Color</label>
+            <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Color</label>
             <div className="flex gap-2">
               {eventColors.map((c) => (
                 <button
@@ -486,7 +496,7 @@ export function Scheduler() {
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors"
+              className={`flex-1 px-4 py-2 border border-slate-200 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-50 transition-colors`}
             >
               Cancel
             </button>

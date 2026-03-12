@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import { Modal } from '../components/common/Modal';
 import { CategoryAutoSuggest } from '../components/common/CategoryAutoSuggest';
 import { useCategories } from '../context/SuggestionsContext';
@@ -29,6 +30,15 @@ const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
 
 export function Expenses() {
   const { state, dispatch } = useApp();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const card = isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-slate-200';
+  const cardTitle = isDark ? 'text-white' : 'text-slate-900';
+  const subText = isDark ? 'text-gray-400' : 'text-slate-500';
+  const inputCls = isDark
+    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-violet-500'
+    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100';
   const expenseCategoryOptions = useCategories('expenses');
   const incomeCategoryOptions = useCategories('income');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -152,8 +162,8 @@ export function Expenses() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">Expense Tracker</h1>
-          <p className="text-slate-500 mt-1">Track your income and expenses</p>
+          <h1 className={`text-2xl lg:text-3xl font-bold ${cardTitle}`}>Expense Tracker</h1>
+          <p className={`${subText} mt-1`}>Track your income and expenses</p>
         </div>
         <div className="flex gap-2">
           <ExportDropdown
@@ -173,7 +183,7 @@ export function Expenses() {
           />
           <button
             onClick={() => setIsBudgetModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white rounded-xl font-medium hover:bg-slate-50 transition-colors"
+            className={`flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white rounded-xl font-medium hover:${isDark ? 'bg-gray-800' : 'bg-slate-50'} transition-colors`}
           >
             <PiggyBank className="h-5 w-5" />
             Set Budget
@@ -190,35 +200,35 @@ export function Expenses() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div className={`${card} rounded-2xl p-5 border  shadow-sm`}>
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
               <TrendingUp className="h-6 w-6 text-emerald-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-500">Income</p>
+              <p className={`text-sm ${subText}`}>Income</p>
               <p className="text-2xl font-bold text-emerald-600">₹{totalIncome.toLocaleString()}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div className={`${card} rounded-2xl p-5 border  shadow-sm`}>
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-xl bg-red-100 flex items-center justify-center">
               <TrendingDown className="h-6 w-6 text-red-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-500">Expenses</p>
+              <p className={`text-sm ${subText}`}>Expenses</p>
               <p className="text-2xl font-bold text-red-600">₹{totalExpenses.toLocaleString()}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div className={`${card} rounded-2xl p-5 border  shadow-sm`}>
           <div className="flex items-center gap-3">
             <div className={`h-12 w-12 rounded-xl ${balance >= 0 ? 'bg-violet-100' : 'bg-amber-100'} flex items-center justify-center`}>
               <IndianRupee className={`h-6 w-6 ${balance >= 0 ? 'text-violet-600' : 'text-amber-600'}`} />
             </div>
             <div>
-              <p className="text-sm text-slate-500">Balance</p>
+              <p className={`text-sm ${subText}`}>Balance</p>
               <p className={`text-2xl font-bold ${balance >= 0 ? 'text-violet-600' : 'text-amber-600'}`}>
                 ₹{Math.abs(balance).toLocaleString()}
               </p>
@@ -229,8 +239,8 @@ export function Expenses() {
 
       {/* Charts */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <h3 className="font-semibold text-slate-900 mb-4">Expense Breakdown</h3>
+        <div className={`${card} rounded-2xl p-6 border  shadow-sm`}>
+          <h3 className={`font-semibold ${cardTitle} mb-4`}>Expense Breakdown</h3>
           {pieData.length > 0 ? (
             <div className="flex flex-col items-center">
               <ResponsiveContainer width="100%" height={250}>
@@ -261,7 +271,7 @@ export function Expenses() {
               </ResponsiveContainer>
               <div className="w-full space-y-2 mt-4 max-h-40 overflow-y-auto">
                 {pieData.map((item, index) => (
-                  <div key={item.name} className="flex items-center justify-between gap-2 text-xs px-2 py-1 rounded hover:bg-slate-50">
+                  <div key={item.name} className={`flex items-center justify-between gap-2 text-xs px-2 py-1 rounded hover:${isDark ? 'bg-gray-800' : 'bg-slate-50'}`}>
                     <div className="flex items-center gap-2 min-w-0">
                       <div
                         className="w-3 h-3 rounded-full flex-shrink-0"
@@ -269,18 +279,18 @@ export function Expenses() {
                       />
                       <span className="text-slate-600 truncate">{item.name}</span>
                     </div>
-                    <span className="font-medium text-slate-700 flex-shrink-0">₹{item.value.toLocaleString()}</span>
+                    <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} flex-shrink-0`}>₹{item.value.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-slate-400">No expense data</div>
+            <div className={`h-80 flex items-center justify-center ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>No expense data</div>
           )}
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <h3 className="font-semibold text-slate-900 mb-4">Budget vs Actual</h3>
+        <div className={`${card} rounded-2xl p-6 border  shadow-sm`}>
+          <h3 className={`font-semibold ${cardTitle} mb-4`}>Budget vs Actual</h3>
           {budgetComparisonData.length > 0 ? (
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
@@ -301,7 +311,7 @@ export function Expenses() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-56 flex items-center justify-center text-slate-400">
+            <div className={`h-56 flex items-center justify-center ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
               No budgets set. Click "Set Budget" to get started.
             </div>
           )}
@@ -311,11 +321,11 @@ export function Expenses() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <Filter className="h-5 w-5 text-slate-400" />
+          <Filter className={`h-5 w-5 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as 'all' | 'income' | 'expense')}
-            className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            className={`px-3 py-2 outline-none transition-all ${inputCls}  rounded-lg focus:ring-2 focus:ring-violet-500 `}
           >
             <option value="all">All Types</option>
             <option value="income">Income</option>
@@ -326,16 +336,16 @@ export function Expenses() {
           type="month"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
-          className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+          className={`px-3 py-2 outline-none transition-all ${inputCls}  rounded-lg focus:ring-2 focus:ring-violet-500 `}
         />
       </div>
 
       {/* Transactions List */}
       {filteredExpenses.length > 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className={`${card} rounded-2xl border  shadow-sm overflow-hidden`}>
           <div className="divide-y divide-slate-100">
             {filteredExpenses.map((expense) => (
-              <div key={expense.id} className="p-4 hover:bg-slate-50 transition-colors">
+              <div key={expense.id} className={`p-4 hover:${isDark ? 'bg-gray-800' : 'bg-slate-50'} transition-colors`}>
                 <div className="flex items-center gap-4">
                   <div
                     className={`h-10 w-10 rounded-xl flex items-center justify-center ${expense.type === 'income' ? 'bg-emerald-100' : 'bg-red-100'
@@ -349,10 +359,10 @@ export function Expenses() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-slate-900">{expense.category}</h4>
-                      {expense.isRecurring && <Repeat className="h-4 w-4 text-slate-400" />}
+                      <h4 className={`font-medium ${cardTitle}`}>{expense.category}</h4>
+                      {expense.isRecurring && <Repeat className={`h-4 w-4 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />}
                     </div>
-                    <p className="text-sm text-slate-500 truncate">{expense.description || 'No description'}</p>
+                    <p className={`text-sm ${subText} truncate`}>{expense.description || 'No description'}</p>
                   </div>
                   <div className="text-right">
                     <p
@@ -361,18 +371,18 @@ export function Expenses() {
                     >
                       {expense.type === 'income' ? '+' : '-'}₹{expense.amount.toLocaleString()}
                     </p>
-                    <p className="text-xs text-slate-400">{format(new Date(expense.date), 'MMM d, yyyy')}</p>
+                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{format(new Date(expense.date), 'MMM d, yyyy')}</p>
                   </div>
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => openModal(expense)}
-                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
+                      className={`p-2 rounded-lg hover:bg-slate-100 ${isDark ? 'text-gray-500' : 'text-slate-400'} transition-colors`}
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => dispatch({ type: 'DELETE_EXPENSE', payload: expense.id })}
-                      className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                      className={`p-2 rounded-lg hover:bg-red-50 ${isDark ? 'text-gray-500' : 'text-slate-400'} hover:text-red-500 transition-colors`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -384,11 +394,11 @@ export function Expenses() {
         </div>
       ) : (
         <div className="text-center py-12">
-          <div className="h-16 w-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <IndianRupee className="h-8 w-8 text-slate-400" />
+          <div className={`h-16 w-16 ${isDark ? 'bg-gray-800' : 'bg-slate-100'} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+            <IndianRupee className={`h-8 w-8 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
           </div>
-          <h3 className="text-lg font-medium text-slate-900 mb-1">No transactions found</h3>
-          <p className="text-slate-500">Add your first transaction to get started</p>
+          <h3 className={`text-lg font-medium ${cardTitle} mb-1`}>No transactions found</h3>
+          <p className={`${subText}`}>Add your first transaction to get started</p>
         </div>
       )}
 
@@ -400,7 +410,7 @@ export function Expenses() {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Type</label>
+            <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Type</label>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -431,9 +441,9 @@ export function Expenses() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Amount</label>
+            <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Amount</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+              <span className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>₹</span>
               <input
                 type="number"
                 step="0.01"
@@ -441,14 +451,14 @@ export function Expenses() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full pl-8 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className={`w-full pl-8 pr-4 py-2 outline-none transition-all ${inputCls}  rounded-xl focus:ring-2 focus:ring-violet-500 `}
                 required
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+              <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Category</label>
               <CategoryAutoSuggest
                 categories={
                   type === 'income'
@@ -460,23 +470,23 @@ export function Expenses() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+              <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Date</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className={`w-full px-3 py-2 outline-none transition-all ${inputCls}  rounded-xl focus:ring-2 focus:ring-violet-500 `}
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+            <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Description</label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add a description..."
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              className={`w-full px-3 py-2 outline-none transition-all ${inputCls}  rounded-xl focus:ring-2 focus:ring-violet-500 `}
             />
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
@@ -486,13 +496,13 @@ export function Expenses() {
               onChange={(e) => setIsRecurring(e.target.checked)}
               className="w-4 h-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
             />
-            <span className="text-sm text-slate-700">Recurring transaction</span>
+            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>Recurring transaction</span>
           </label>
           <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors"
+              className={`flex-1 px-4 py-2 border border-slate-200 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-50 transition-colors`}
             >
               Cancel
             </button>
@@ -510,11 +520,11 @@ export function Expenses() {
       <Modal isOpen={isBudgetModalOpen} onClose={() => setIsBudgetModalOpen(false)} title="Set Budget">
         <form onSubmit={handleBudgetSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+            <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Category</label>
             <select
               value={budgetCategory}
               onChange={(e) => setBudgetCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              className={`w-full px-3 py-2 outline-none transition-all ${inputCls}  rounded-xl focus:ring-2 focus:ring-violet-500 `}
             >
               {expenseCategories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -524,9 +534,9 @@ export function Expenses() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Monthly Budget</label>
+            <label className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-slate-700'} mb-1`}>Monthly Budget</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+              <span className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>₹</span>
               <input
                 type="number"
                 step="0.01"
@@ -534,7 +544,7 @@ export function Expenses() {
                 value={budgetAmount}
                 onChange={(e) => setBudgetAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full pl-8 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className={`w-full pl-8 pr-4 py-2 outline-none transition-all ${inputCls}  rounded-xl focus:ring-2 focus:ring-violet-500 `}
                 required
               />
             </div>
@@ -543,7 +553,7 @@ export function Expenses() {
             <button
               type="button"
               onClick={() => setIsBudgetModalOpen(false)}
-              className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors"
+              className={`flex-1 px-4 py-2 border border-slate-200 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-50 transition-colors`}
             >
               Cancel
             </button>
