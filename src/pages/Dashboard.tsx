@@ -43,9 +43,17 @@ function generateDailyChallenges(state: any): any[] {
     { title: 'Focus for 25 minutes', description: 'Complete a Pomodoro session', category: 'pomodoro', targetCount: 1, points: 35 },
     { title: 'Add a new note', description: 'Capture an idea or thought', category: 'notes', targetCount: 1, points: 20 },
   ];
-  // Pick 3 random challenges
-  const shuffled = challenges.sort(() => 0.5 - Math.random()).slice(0, 3);
-  return shuffled.map((c) => ({
+  // Pick 3 unique random challenges
+  const shuffled = [...challenges].sort(() => 0.5 - Math.random());
+  const selected = [];
+  const usedTitles = new Set();
+  for (const c of shuffled) {
+    if (!usedTitles.has(c.title) && selected.length < 3) {
+      selected.push(c);
+      usedTitles.add(c.title);
+    }
+  }
+  return selected.map((c) => ({
     id: uuidv4(), ...c, currentCount: 0, completed: false, date: today,
   }));
 }
@@ -394,7 +402,9 @@ export function Dashboard() {
             <Zap className="h-5 w-5 text-violet-500" /> Daily Challenges
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {state.dailyChallenges.map((challenge) => (
+            {state.dailyChallenges.filter((challenge, index, self) => 
+              self.findIndex(c => c.title === challenge.title) === index
+            ).map((challenge) => (
               <div key={challenge.id} className={`p-4 rounded-xl ${challenge.completed
                 ? isDark ? 'bg-emerald-900/20 border border-emerald-800' : 'bg-emerald-50 border border-emerald-200'
                 : isDark ? 'bg-gray-800/50' : 'bg-white/80'
