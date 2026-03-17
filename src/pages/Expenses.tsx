@@ -190,7 +190,7 @@ export function Expenses() {
           </button>
           <button
             onClick={() => openModal()}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200 hover:shadow-xl transition-shadow"
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--color-accent)] text-white rounded-xl font-medium shadow-[var(--shadow-md)] hover:shadow-xl transition-shadow"
           >
             <Plus className="h-5 w-5" />
             Add Entry
@@ -508,7 +508,7 @@ export function Expenses() {
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow"
+              className="flex-1 px-4 py-2 bg-[var(--color-accent)] text-white rounded-xl font-medium hover:shadow-lg transition-shadow"
             >
               {editingExpense ? 'Update' : 'Add'}
             </button>
@@ -559,7 +559,7 @@ export function Expenses() {
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow"
+              className="flex-1 px-4 py-2 bg-[var(--color-accent)] text-white rounded-xl font-medium hover:shadow-lg transition-shadow"
             >
               Set Budget
             </button>

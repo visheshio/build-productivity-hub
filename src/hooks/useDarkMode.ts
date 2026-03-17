@@ -2,7 +2,8 @@ import { useTheme } from '../context/ThemeContext';
 
 /**
  * Returns a set of pre-computed class strings for common dark/light patterns.
- * Use these in page/component JSX to get instant dark mode support.
+ * Updated to use CSS custom properties from the Apple Design Token system.
+ * Most values are now theme-independent since CSS vars auto-switch.
  */
 export function useDarkMode() {
   const { theme } = useTheme();
@@ -10,45 +11,40 @@ export function useDarkMode() {
 
   return {
     isDark,
-    // Page background
-    pageBg: isDark ? 'bg-gray-950' : '',
-    // Card (white panel)
-    card: isDark
-      ? 'bg-gray-900 border-gray-800'
-      : 'bg-white border-slate-200',
+    // Page background — driven by CSS var on html
+    pageBg: '',
+    // Card (white panel) — uses the apple-card utility
+    card: 'apple-card',
     // Card text
-    cardTitle: isDark ? 'text-white' : 'text-slate-900',
-    subText: isDark ? 'text-gray-400' : 'text-slate-500',
-    mutedText: isDark ? 'text-gray-500' : 'text-slate-400',
+    cardTitle: 'text-[var(--color-text-primary)]',
+    subText: 'text-[var(--color-text-secondary)]',
+    mutedText: 'text-[var(--color-text-tertiary)]',
     // Input / form fields
-    input: isDark
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-violet-500'
-      : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-violet-500 focus:border-transparent',
+    input:
+      'bg-[var(--color-surface-secondary)] border-[var(--color-border-primary)] text-[var(--color-text-primary)] placeholder-[var(--color-text-tertiary)] focus:border-[var(--color-accent)] focus:shadow-[var(--shadow-focus)]',
     // Select
-    select: isDark
-      ? 'bg-gray-800 border-gray-700 text-white'
-      : 'bg-white border-slate-200 text-slate-900',
+    select:
+      'bg-[var(--color-surface-secondary)] border-[var(--color-border-primary)] text-[var(--color-text-primary)]',
     // Label
-    label: isDark ? 'text-gray-300' : 'text-slate-700',
+    label: 'text-[var(--color-text-primary)]',
     // Divider
-    divider: isDark ? 'border-gray-800' : 'border-slate-100',
+    divider: 'border-[var(--color-border-secondary)]',
     // Badge/pill backgrounds
-    badge: isDark ? 'bg-gray-800 text-gray-300' : 'bg-slate-100 text-slate-600',
+    badge: 'bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)]',
     // Cancel button
-    cancelBtn: isDark
-      ? 'border-gray-700 text-gray-300 hover:bg-gray-800'
-      : 'border-slate-200 text-slate-700 hover:bg-slate-50',
+    cancelBtn:
+      'border-[var(--color-border-primary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]',
     // Hover row / item
-    hoverItem: isDark ? 'hover:bg-gray-800' : 'hover:bg-slate-50',
+    hoverItem: 'hover:bg-[var(--color-surface-secondary)]',
     // Active filter pill
-    activeFilter: 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white',
-    inactiveFilter: isDark
-      ? 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-      : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+    activeFilter:
+      'bg-[var(--color-accent)] text-white shadow-sm',
+    inactiveFilter:
+      'bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]',
     // Empty state bg
-    emptyBg: isDark ? 'bg-gray-800' : 'bg-slate-100',
-    emptyIcon: isDark ? 'text-gray-600' : 'text-slate-400',
-    // Tag color helper
+    emptyBg: 'bg-[var(--color-surface-secondary)]',
+    emptyIcon: 'text-[var(--color-text-tertiary)]',
+    // Tag color helper — these semantic tag colors still use Tailwind w/ dark: variant
     tagColor: (tag: string): string => {
       const map: Record<string, string> = {
         personal: isDark ? 'bg-pink-900/40 text-pink-300' : 'bg-pink-100 text-pink-700',

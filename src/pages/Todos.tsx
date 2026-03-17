@@ -219,7 +219,7 @@ export function Todos() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => openModal()}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg shadow-indigo-200 hover:shadow-xl transition-shadow"
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--color-accent)] text-white rounded-xl font-medium shadow-[var(--shadow-md)] hover:shadow-xl transition-shadow"
           >
             <Plus className="h-5 w-5" />
             Add Task
@@ -542,7 +542,7 @@ export function Todos() {
               type="submit"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg transition-shadow text-sm"
+              className="flex-1 px-4 py-2 bg-[var(--color-accent)] text-white rounded-xl font-medium hover:shadow-lg transition-shadow text-sm"
             >
               {editingTodo ? 'Update' : 'Add Task'}
             </motion.button>

@@ -148,7 +148,7 @@ export function AuthPage() {
             <div>
               <h2 className={`text-4xl font-extrabold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Your all-in-one<br />
-                <span className="bg-gradient-to-r from-violet-500 to-indigo-600 bg-clip-text text-transparent">
+                <span className="bg-[var(--color-accent)] bg-clip-text text-transparent">
                   productivity suite
                 </span>
               </h2>
@@ -203,7 +203,7 @@ export function AuthPage() {
                   onClick={() => { setMode(m); setError(''); setSuccessMsg(''); }}
                   whileTap={{ scale: 0.97 }}
                   className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${(mode === m || (mode === 'forgot' && m === 'signin'))
-                    ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-lg'
+                    ? 'bg-[var(--color-accent)] text-white shadow-lg'
                     : isDark
                       ? 'text-gray-400 hover:text-white'
                       : 'text-slate-500 hover:text-slate-900'
@@ -365,7 +365,7 @@ export function AuthPage() {
                 disabled={loading}
                 whileHover={{ scale: loading ? 1 : 1.02 }}
                 whileTap={{ scale: loading ? 1 : 0.97 }}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-semibold text-sm hover:from-violet-600 hover:to-indigo-700 transition-all duration-200 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full py-3 rounded-xl bg-[var(--color-accent)] text-white font-semibold text-sm hover:from-violet-600 hover:to-indigo-700 transition-all duration-200 shadow-[var(--shadow-md)] dark:shadow-indigo-900/30 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">

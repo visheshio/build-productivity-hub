@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AppProvider } from './context/AppContext';
 import { SuggestionsProvider } from './context/SuggestionsContext';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/common/Layout';
 import { CommandPalette } from './components/common/CommandPalette';
@@ -23,19 +23,22 @@ import Achievements from './pages/Achievements';
 
 function AppContent() {
   const { user, isLoading } = useAuth();
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gray-950' : 'bg-slate-50'}`}>
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: 'var(--color-bg-primary)' }}>
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg animate-pulse">
+          <div className="h-12 w-12 rounded-2xl flex items-center justify-center animate-pulse"
+            style={{
+              background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-gradient-to))',
+              boxShadow: 'var(--shadow-lg)',
+            }}>
             <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Loading ProductivityHub…</p>
+          <p className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>Loading ProductivityHub…</p>
         </div>
       </div>
     );
@@ -53,9 +56,15 @@ function AppContent() {
             position="top-right"
             toastOptions={{
               duration: 3000,
-              style: isDark
-                ? { background: '#1e1b4b', color: '#e0e7ff', borderRadius: '12px', border: '1px solid #312e81' }
-                : { background: '#1e293b', color: '#fff', borderRadius: '12px' },
+              style: {
+                background: 'var(--color-surface-primary)',
+                color: 'var(--color-text-primary)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--color-border-primary)',
+                boxShadow: 'var(--shadow-lg)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+              },
             }}
           />
           {/* Global overlays */}

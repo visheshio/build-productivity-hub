@@ -184,7 +184,7 @@ export function Pomodoro() {
                 onClick={() => { if (timerState === 'idle') { setMode('work'); setTimeLeft(workMinutes * 60); } }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                   mode === 'work'
-                    ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-lg'
+                    ? 'bg-[var(--color-accent)] text-white shadow-lg'
                     : isDark ? 'text-gray-400 hover:bg-gray-800' : 'text-slate-500 hover:bg-slate-100'
                 }`}
               >
@@ -238,7 +238,7 @@ export function Pomodoro() {
                 </button>
               ) : (
                 <button onClick={handleStart} className={`h-14 w-14 rounded-full text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105 ${
-                  mode === 'work' ? 'bg-gradient-to-r from-violet-500 to-indigo-600' : 'bg-gradient-to-r from-emerald-500 to-teal-600'
+                  mode === 'work' ? 'bg-[var(--color-accent)]' : 'bg-gradient-to-r from-emerald-500 to-teal-600'
                 }`}>
                   <Play className="h-6 w-6 ml-0.5" />
                 </button>
@@ -269,7 +269,7 @@ export function Pomodoro() {
                     disabled={timerState !== 'idle'}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                       workMinutes === p.work && breakMinutes === p.break
-                        ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-md'
+                        ? 'bg-[var(--color-accent)] text-white shadow-md'
                         : isDark ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-50'
                     }`}
                   >

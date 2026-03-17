@@ -95,12 +95,18 @@ export default {
 
       /* ===================== BOX SHADOW EXTENSIONS ===================== */
       boxShadow: {
-        'glow': '0 0 20px rgba(59, 130, 246, 0.5)',
-        'glow-lg': '0 0 30px rgba(59, 130, 246, 0.6)',
+        'apple-xs': 'var(--shadow-xs)',
+        'apple-sm': 'var(--shadow-sm)',
+        'apple-md': 'var(--shadow-md)',
+        'apple-lg': 'var(--shadow-lg)',
+        'apple-xl': 'var(--shadow-xl)',
+        'apple-focus': 'var(--shadow-focus)',
+        'glow': '0 0 20px rgba(0, 113, 227, 0.4)',
+        'glow-lg': '0 0 30px rgba(0, 113, 227, 0.5)',
         'soft': '0 2px 8px rgba(0, 0, 0, 0.04)',
         'soft-md': '0 4px 12px rgba(0, 0, 0, 0.08)',
         'soft-lg': '0 8px 16px rgba(0, 0, 0, 0.1)',
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
       },
 
       /* ===================== Z-INDEX EXTENSIONS ===================== */

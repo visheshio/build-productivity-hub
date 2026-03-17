@@ -90,7 +90,7 @@ export function Journal() {
           <h1 className={`text-2xl font-bold ${textPrimary}`}>Daily Journal</h1>
           <p className={`text-sm mt-1 ${textSecondary}`}>Reflect on your day and track your mood</p>
         </div>
-        <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-accent)] text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
           <Plus className="h-4 w-4" /> New Entry
         </button>
       </div>
@@ -191,7 +191,7 @@ export function Journal() {
                   className={`text-sm font-medium ${isDark ? 'text-violet-400' : 'text-violet-600'} hover:underline`}>+ Add more</button>
               </div>
 
-              <button onClick={handleSubmit} className="w-full py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg">
+              <button onClick={handleSubmit} className="w-full py-2.5 bg-[var(--color-accent)] text-white rounded-xl text-sm font-semibold shadow-lg">
                 {editingEntry ? 'Update Entry' : 'Save Entry'}
               </button>
             </div>

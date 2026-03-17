@@ -99,7 +99,7 @@ export function Goals() {
           <h1 className={`text-2xl font-bold ${textPrimary}`}>Goals</h1>
           <p className={`text-sm mt-1 ${textSecondary}`}>Set and track your short-term and long-term goals</p>
         </div>
-        <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+        <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-accent)] text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
           <Plus className="h-4 w-4" /> New Goal
         </button>
       </div>
@@ -110,7 +110,7 @@ export function Goals() {
           <button key={cat} onClick={() => setFilterCategory(cat)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
               filterCategory === cat
-                ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-md'
+                ? 'bg-[var(--color-accent)] text-white shadow-md'
                 : isDark ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}>
             {cat === 'all' ? '🎯 All' : `${CATEGORY_COLORS[cat]?.icon} ${cat.charAt(0).toUpperCase() + cat.slice(1)}`}
@@ -163,7 +163,7 @@ export function Goals() {
                 <button onClick={() => setFormData({ ...formData, milestones: [...formData.milestones, { id: uuidv4(), title: '', completed: false }] })}
                   className={`text-sm font-medium ${isDark ? 'text-violet-400' : 'text-violet-600'} hover:underline`}>+ Add milestone</button>
               </div>
-              <button onClick={handleSubmit} className="w-full py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl">
+              <button onClick={handleSubmit} className="w-full py-2.5 bg-[var(--color-accent)] text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl">
                 {editingGoal ? 'Update Goal' : 'Create Goal'}
               </button>
             </div>
@@ -216,7 +216,7 @@ export function Goals() {
                   </div>
                   <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-slate-100'}`}>
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${goal.progress >= 100 ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-violet-500 to-indigo-600'}`}
+                      className={`h-full rounded-full transition-all duration-500 ${goal.progress >= 100 ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-[var(--color-accent)]'}`}
                       style={{ width: `${Math.min(goal.progress, 100)}%` }}
                     />
                   </div>

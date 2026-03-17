@@ -116,17 +116,17 @@ export function Dashboard() {
     });
   }, [state.todos, state.journalEntries, state.habits, state.pomodoroSessions, state.notes]);
 
-  const card = isDark
-    ? 'bg-gray-900 border-gray-800 text-white'
-    : 'bg-white border-slate-200 text-slate-900';
-  const subText = isDark ? 'text-gray-400' : 'text-slate-500';
+  const card = 'apple-card';
+  const subText = 'text-[var(--color-text-secondary)]';
   const tooltipStyle = {
-    backgroundColor: isDark ? '#1e1b4b' : '#1e293b',
-    border: 'none',
-    borderRadius: '8px',
-    color: 'white',
+    backgroundColor: 'var(--color-surface-primary)',
+    border: '1px solid var(--color-border-primary)',
+    borderRadius: 'var(--radius-md)',
+    color: 'var(--color-text-primary)',
+    boxShadow: 'var(--shadow-lg)',
+    backdropFilter: 'blur(12px)',
   };
-  const axisColor = isDark ? '#6b7280' : '#64748b';
+  const axisColor = 'var(--color-text-tertiary)';
 
   // Stats
   const completedTasks = state.todos.filter((t) => t.status === 'completed').length;
@@ -218,16 +218,17 @@ export function Dashboard() {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className={`text-2xl lg:text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+          <h1 className="text-2xl lg:text-3xl font-bold" style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.02em' }}>
             Dashboard
           </h1>
-          <p className={subText}>Welcome back, {firstName}! Here's your productivity overview.</p>
+          <p style={{ color: 'var(--color-text-secondary)' }}>Welcome back, {firstName}! Here's your productivity overview.</p>
         </div>
         <motion.button
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.96 }}
           onClick={() => setShowWidgetConfig(!showWidgetConfig)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isDark ? 'bg-gray-800 text-gray-400 hover:bg-gray-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium smooth-transition"
+          style={{ background: 'var(--color-surface-secondary)', color: 'var(--color-text-secondary)' }}>
           {showWidgetConfig ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
           Widgets
         </motion.button>
@@ -235,15 +236,16 @@ export function Dashboard() {
 
       {/* Widget config panel */}
       {showWidgetConfig && (
-        <div className={`rounded-2xl p-4 border ${card} transition-colors`}>
-          <p className={`text-xs font-semibold uppercase mb-2 ${subText}`}>Show / Hide Widgets</p>
+        <div className="rounded-2xl p-4 apple-card">
+          <p className="text-xs font-semibold uppercase mb-2" style={{ color: 'var(--color-text-tertiary)' }}>Show / Hide Widgets</p>
           <div className="flex flex-wrap gap-2">
             {widgets.map((w: any) => (
               <button key={w.id} onClick={() => toggleWidget(w.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${w.visible
-                  ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-sm'
-                  : isDark ? 'bg-gray-800 text-gray-500' : 'bg-slate-100 text-slate-400'
-                  }`}>
+                className="px-3 py-1.5 rounded-lg text-xs font-medium smooth-transition"
+                style={w.visible
+                  ? { background: 'var(--color-accent)', color: '#ffffff', boxShadow: 'var(--shadow-sm)' }
+                  : { background: 'var(--color-surface-secondary)', color: 'var(--color-text-tertiary)' }
+                }>
                 {w.visible ? <Eye className="h-3 w-3 inline mr-1" /> : <EyeOff className="h-3 w-3 inline mr-1" />}
                 {w.title}
               </button>
@@ -261,7 +263,7 @@ export function Dashboard() {
           animate="animate"
         >
           {[
-            { icon: CheckCircle2, color: 'bg-violet-100 dark:bg-violet-900/30', iconColor: 'text-violet-600', value: `${completedTasks}/${totalTasks}`, label: 'Tasks Done' },
+            { icon: CheckCircle2, color: 'bg-blue-100 dark:bg-blue-900/30', iconColor: 'text-blue-600', value: `${completedTasks}/${totalTasks}`, label: 'Tasks Done' },
             { icon: Flame, color: 'bg-orange-100 dark:bg-orange-900/30', iconColor: 'text-orange-500', value: `${todaysHabits}/${state.habits.length}`, label: 'Habits Today' },
             { icon: IndianRupee, color: 'bg-emerald-100 dark:bg-emerald-900/30', iconColor: 'text-emerald-600', value: `₹${(totalIncome - totalExpenses).toLocaleString()}`, label: 'Net Balance' },
             { icon: Calendar, color: 'bg-cyan-100 dark:bg-cyan-900/30', iconColor: 'text-cyan-600', value: String(todaysEvents), label: 'Events Today' },
@@ -270,14 +272,14 @@ export function Dashboard() {
               key={label}
               variants={staggerItem}
               whileHover={{ y: -4, transition: { duration: 0.15 } }}
-              className={`rounded-2xl p-4 lg:p-5 shadow-sm border cursor-default ${card} transition-colors duration-300`}
+              className="rounded-2xl p-4 lg:p-5 cursor-default apple-card"
             >
               <div className="flex items-center gap-3">
                 <div className={`h-11 w-11 rounded-xl ${color} flex items-center justify-center shrink-0`}>
                   <Icon className={`h-5 w-5 ${iconColor}`} />
                 </div>
                 <div className="min-w-0">
-                  <p className={`text-xl font-bold truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>{value}</p>
+                  <p className="text-xl font-bold truncate" style={{ color: 'var(--color-text-primary)' }}>{value}</p>
                   <p className={`text-xs ${subText}`}>{label}</p>
                 </div>
               </div>
@@ -292,7 +294,11 @@ export function Dashboard() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="bg-gradient-to-r from-violet-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-200/40 dark:shadow-indigo-900/30"
+          className="rounded-2xl p-6 text-white"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-gradient-to))',
+            boxShadow: isDark ? '0 8px 32px rgba(41, 151, 255, 0.25)' : '0 8px 32px rgba(0, 113, 227, 0.2)',
+          }}
         >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
@@ -330,19 +336,19 @@ export function Dashboard() {
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Pomodoro widget */}
         {isVisible('pomodoro') && (
-          <Link to="/pomodoro" className={`rounded-2xl p-5 shadow-sm border ${card} transition-all duration-300 hover:shadow-lg group`}>
+          <Link to="/pomodoro" className="rounded-2xl p-5 apple-card hover:shadow-[var(--shadow-lg)] group">
             <div className="flex items-center gap-2 mb-3">
               <div className="h-9 w-9 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
                 <Timer className="h-5 w-5 text-rose-500" />
               </div>
-              <h3 className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>Focus Today</h3>
+              <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>Focus Today</h3>
             </div>
             <div className="flex items-end gap-4">
               <div>
-                <p className={`text-3xl font-bold ${isDark ? 'text-rose-400' : 'text-rose-600'}`}>{todayFocusMinutes}</p>
+                <p className="text-3xl font-bold text-rose-500">{todayFocusMinutes}</p>
                 <p className={`text-xs ${subText}`}>minutes focused</p>
               </div>
-              <div className={`ml-auto px-2.5 py-1 rounded-lg text-xs font-semibold ${isDark ? 'bg-rose-500/10 text-rose-400' : 'bg-rose-50 text-rose-600'}`}>
+              <div className="ml-auto px-2.5 py-1 rounded-lg text-xs font-semibold" style={{ background: 'var(--color-error-bg)', color: 'var(--color-rose)' }}>
                 {todaySessions.length} sessions
               </div>
             </div>
@@ -351,19 +357,19 @@ export function Dashboard() {
 
         {/* Goals widget */}
         {isVisible('goals') && (
-          <Link to="/goals" className={`rounded-2xl p-5 shadow-sm border ${card} transition-all duration-300 hover:shadow-lg group`}>
+          <Link to="/goals" className="rounded-2xl p-5 apple-card hover:shadow-[var(--shadow-lg)] group">
             <div className="flex items-center gap-2 mb-3">
               <div className="h-9 w-9 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                 <Target className="h-5 w-5 text-blue-500" />
               </div>
-              <h3 className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>Goals</h3>
+              <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>Goals</h3>
             </div>
             <div className="flex items-end gap-4">
               <div>
-                <p className={`text-3xl font-bold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>{activeGoals.length}</p>
+                <p className="text-3xl font-bold" style={{ color: 'var(--color-accent)' }}>{activeGoals.length}</p>
                 <p className={`text-xs ${subText}`}>active goals</p>
               </div>
-              <div className={`ml-auto px-2.5 py-1 rounded-lg text-xs font-semibold ${isDark ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600'}`}>
+              <div className="ml-auto px-2.5 py-1 rounded-lg text-xs font-semibold" style={{ background: 'var(--color-success-bg)', color: 'var(--color-success)' }}>
                 {completedGoals.length} completed
               </div>
             </div>
@@ -372,20 +378,20 @@ export function Dashboard() {
 
         {/* Mood widget */}
         {isVisible('mood') && (
-          <Link to="/journal" className={`rounded-2xl p-5 shadow-sm border ${card} transition-all duration-300 hover:shadow-lg group`}>
+          <Link to="/journal" className="rounded-2xl p-5 apple-card hover:shadow-[var(--shadow-lg)] group">
             <div className="flex items-center gap-2 mb-3">
               <div className="h-9 w-9 rounded-xl bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
                 <BookOpen className="h-5 w-5 text-pink-500" />
               </div>
-              <h3 className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>Mood Today</h3>
+              <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>Mood Today</h3>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-3xl">{todayJournal ? MOOD_EMOJIS[todayJournal.moodRating - 1] : '—'}</span>
               <div className="flex-1 flex items-center gap-1">
                 {last7Moods.map((m, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <div className={`h-1 w-full rounded-full ${m.mood ? 'bg-gradient-to-r from-violet-400 to-pink-400' : isDark ? 'bg-gray-800' : 'bg-slate-100'}`}
-                      style={{ opacity: m.mood ? m.mood / 5 : 0.2 }} />
+                    <div className={`h-1 w-full rounded-full ${m.mood ? 'bg-gradient-to-r from-[var(--color-accent)] to-pink-400' : ''}`}
+                      style={{ opacity: m.mood ? m.mood / 5 : 0.2, background: m.mood ? undefined : 'var(--color-bg-tertiary)' }} />
                     <span className={`text-[10px] ${subText}`}>{m.day}</span>
                   </div>
                 ))}
@@ -397,30 +403,31 @@ export function Dashboard() {
 
       {/* Daily Challenges */}
       {isVisible('challenges') && state.dailyChallenges.length > 0 && (
-        <div className={`rounded-2xl p-6 border ${isDark ? 'bg-gradient-to-r from-violet-900/20 to-indigo-900/20 border-violet-800/40' : 'bg-gradient-to-r from-violet-50 to-indigo-50 border-violet-200'}`}>
-          <h3 className={`font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-violet-300' : 'text-slate-900'}`}>
-            <Zap className="h-5 w-5 text-violet-500" /> Daily Challenges
+        <div className="rounded-2xl p-6" style={{ background: 'var(--color-accent-subtle)', border: '1px solid var(--color-border-primary)' }}>
+          <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+            <Zap className="h-5 w-5" style={{ color: 'var(--color-accent)' }} /> Daily Challenges
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {state.dailyChallenges.filter((challenge, index, self) => 
               self.findIndex(c => c.title === challenge.title) === index
             ).map((challenge) => (
-              <div key={challenge.id} className={`p-4 rounded-xl ${challenge.completed
-                ? isDark ? 'bg-emerald-900/20 border border-emerald-800' : 'bg-emerald-50 border border-emerald-200'
-                : isDark ? 'bg-gray-800/50' : 'bg-white/80'
-                }`}>
+              <div key={challenge.id} className="p-4 rounded-xl"
+                style={challenge.completed
+                  ? { background: 'var(--color-success-bg)', border: '1px solid var(--color-success)', borderColor: isDark ? 'rgba(48,209,88,0.3)' : 'rgba(52,199,89,0.3)' }
+                  : { background: 'var(--color-surface-secondary)' }
+                }>
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className={`text-sm font-semibold ${challenge.completed ? (isDark ? 'text-emerald-400' : 'text-emerald-700') : (isDark ? 'text-white' : 'text-slate-900')}`}>
+                  <h4 className="text-sm font-semibold" style={{ color: challenge.completed ? 'var(--color-success)' : 'var(--color-text-primary)' }}>
                     {challenge.completed && '✅ '}{challenge.title}
                   </h4>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-lg ${isDark ? 'bg-violet-500/20 text-violet-400' : 'bg-violet-100 text-violet-600'}`}>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-lg" style={{ background: 'var(--color-accent-subtle)', color: 'var(--color-accent)' }}>
                     +{challenge.points}pts
                   </span>
                 </div>
                 <p className={`text-xs mb-2 ${subText}`}>{challenge.description}</p>
-                <div className={`h-1.5 rounded-full ${isDark ? 'bg-gray-700' : 'bg-slate-200'}`}>
-                  <div className={`h-full rounded-full transition-all ${challenge.completed ? 'bg-emerald-500' : 'bg-gradient-to-r from-violet-500 to-indigo-600'}`}
-                    style={{ width: `${Math.min(100, (challenge.currentCount / challenge.targetCount) * 100)}%` }} />
+                <div className="h-1.5 rounded-full" style={{ background: 'var(--color-bg-tertiary)' }}>
+                  <div className="h-full rounded-full smooth-transition"
+                    style={{ width: `${Math.min(100, (challenge.currentCount / challenge.targetCount) * 100)}%`, background: challenge.completed ? 'var(--color-success)' : 'var(--color-accent)' }} />
                 </div>
                 <p className={`text-xs mt-1 ${subText}`}>{challenge.currentCount}/{challenge.targetCount}</p>
               </div>
@@ -431,39 +438,39 @@ export function Dashboard() {
 
       {/* Achievements mini */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Link to="/achievements" className={`rounded-2xl p-4 shadow-sm border ${card} transition-all hover:shadow-lg flex items-center gap-3`}>
+        <Link to="/achievements" className="rounded-2xl p-4 apple-card flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
             <Trophy className="h-5 w-5 text-amber-500" />
           </div>
           <div>
-            <p className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{unlockedCount}/{state.achievements.length}</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>{unlockedCount}/{state.achievements.length}</p>
             <p className={`text-xs ${subText}`}>Achievements</p>
           </div>
         </Link>
-        <Link to="/pomodoro" className={`rounded-2xl p-4 shadow-sm border ${card} transition-all hover:shadow-lg flex items-center gap-3`}>
+        <Link to="/pomodoro" className="rounded-2xl p-4 apple-card flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
             <Timer className="h-5 w-5 text-rose-500" />
           </div>
           <div>
-            <p className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{state.pomodoroSessions.filter((s) => s.type === 'work').length}</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>{state.pomodoroSessions.filter((s) => s.type === 'work').length}</p>
             <p className={`text-xs ${subText}`}>Total Sessions</p>
           </div>
         </Link>
-        <Link to="/goals" className={`rounded-2xl p-4 shadow-sm border ${card} transition-all hover:shadow-lg flex items-center gap-3`}>
+        <Link to="/goals" className="rounded-2xl p-4 apple-card flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
             <Target className="h-5 w-5 text-blue-500" />
           </div>
           <div>
-            <p className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{state.goals.length}</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>{state.goals.length}</p>
             <p className={`text-xs ${subText}`}>Total Goals</p>
           </div>
         </Link>
-        <Link to="/journal" className={`rounded-2xl p-4 shadow-sm border ${card} transition-all hover:shadow-lg flex items-center gap-3`}>
+        <Link to="/journal" className="rounded-2xl p-4 apple-card flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
             <BookOpen className="h-5 w-5 text-pink-500" />
           </div>
           <div>
-            <p className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{state.journalEntries.length}</p>
+            <p className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>{state.journalEntries.length}</p>
             <p className={`text-xs ${subText}`}>Journal Entries</p>
           </div>
         </Link>
@@ -472,28 +479,28 @@ export function Dashboard() {
       {/* Charts */}
       {isVisible('charts') && (
         <div className="grid lg:grid-cols-2 gap-6">
-          <div className={`rounded-2xl p-6 shadow-sm border ${card} transition-colors duration-300`}>
-            <h3 className={`font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Task Completion (Last 7 Days)</h3>
+          <div className="rounded-2xl p-6 apple-card">
+            <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>Task Completion (Last 7 Days)</h3>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={last7Days}>
                   <defs>
                     <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#0071e3" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#0071e3" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: axisColor, fontSize: 12 }} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: axisColor, fontSize: 12 }} />
                   <Tooltip contentStyle={tooltipStyle} />
-                  <Area type="monotone" dataKey="completed" stroke="#8b5cf6" strokeWidth={2.5} fill="url(#colorCompleted)" />
+                  <Area type="monotone" dataKey="completed" stroke="#0071e3" strokeWidth={2.5} fill="url(#colorCompleted)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          <div className={`rounded-2xl p-6 shadow-sm border ${card} transition-colors duration-300`}>
-            <h3 className={`font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Expense Breakdown</h3>
+          <div className="rounded-2xl p-6 apple-card">
+            <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>Expense Breakdown</h3>
             {expensePieData.length > 0 ? (
               <div className="h-48 flex items-center">
                 <ResponsiveContainer width="50%" height="100%">
@@ -509,7 +516,7 @@ export function Dashboard() {
                     <div key={item.name} className="flex items-center gap-2 text-xs">
                       <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                       <span className={`truncate ${subText}`}>{item.name}</span>
-                      <span className={`ml-auto font-semibold shrink-0 ${isDark ? 'text-white' : 'text-slate-700'}`}>₹{item.value.toLocaleString()}</span>
+                      <span className="ml-auto font-semibold shrink-0" style={{ color: 'var(--color-text-primary)' }}>₹{item.value.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -524,8 +531,8 @@ export function Dashboard() {
       {/* Habits & Pending */}
       {isVisible('pending') && (
         <div className="grid lg:grid-cols-2 gap-6">
-          <div className={`rounded-2xl p-6 shadow-sm border ${card} transition-colors duration-300`}>
-            <h3 className={`font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Habit Streaks</h3>
+          <div className="rounded-2xl p-6 apple-card">
+            <h3 className="font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>Habit Streaks</h3>
             {habitCompletionData.length > 0 ? (
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
@@ -542,44 +549,44 @@ export function Dashboard() {
             )}
           </div>
 
-          <div className={`rounded-2xl p-6 shadow-sm border ${card} transition-colors duration-300`}>
-            <h3 className={`font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              <AlertTriangle className="h-5 w-5 text-amber-500" /> Pending Items
+          <div className="rounded-2xl p-6 apple-card">
+            <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+              <AlertTriangle className="h-5 w-5" style={{ color: 'var(--color-warning)' }} /> Pending Items
             </h3>
             <div className="space-y-3">
               {overdueTasks > 0 && (
-                <div className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? 'bg-red-900/20 border border-red-800' : 'bg-red-50'}`}>
-                  <Clock className="h-5 w-5 text-red-500 shrink-0" />
+                <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--color-error-bg)' }}>
+                  <Clock className="h-5 w-5 shrink-0" style={{ color: 'var(--color-error)' }} />
                   <div>
-                    <p className={`font-medium text-sm ${isDark ? 'text-red-400' : 'text-red-700'}`}>{overdueTasks} overdue task{overdueTasks > 1 ? 's' : ''}</p>
-                    <p className={`text-xs ${isDark ? 'text-red-500' : 'text-red-400'}`}>Needs immediate attention</p>
+                    <p className="font-medium text-sm" style={{ color: 'var(--color-error)' }}>{overdueTasks} overdue task{overdueTasks > 1 ? 's' : ''}</p>
+                    <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Needs immediate attention</p>
                   </div>
                 </div>
               )}
               {pendingTasks > 0 && (
-                <div className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? 'bg-amber-900/20 border border-amber-800' : 'bg-amber-50'}`}>
-                  <CheckCircle2 className="h-5 w-5 text-amber-500 shrink-0" />
+                <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--color-warning-bg)' }}>
+                  <CheckCircle2 className="h-5 w-5 shrink-0" style={{ color: 'var(--color-warning)' }} />
                   <div>
-                    <p className={`font-medium text-sm ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>{pendingTasks} pending task{pendingTasks > 1 ? 's' : ''}</p>
-                    <p className={`text-xs ${isDark ? 'text-amber-500' : 'text-amber-400'}`}>Waiting to be started</p>
+                    <p className="font-medium text-sm" style={{ color: 'var(--color-warning)' }}>{pendingTasks} pending task{pendingTasks > 1 ? 's' : ''}</p>
+                    <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Waiting to be started</p>
                   </div>
                 </div>
               )}
               {upcomingEvents > 0 && (
-                <div className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? 'bg-blue-900/20 border border-blue-800' : 'bg-blue-50'}`}>
-                  <Calendar className="h-5 w-5 text-blue-500 shrink-0" />
+                <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--color-info-bg)' }}>
+                  <Calendar className="h-5 w-5 shrink-0" style={{ color: 'var(--color-info)' }} />
                   <div>
-                    <p className={`font-medium text-sm ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>{upcomingEvents} upcoming event{upcomingEvents > 1 ? 's' : ''}</p>
-                    <p className={`text-xs ${isDark ? 'text-blue-500' : 'text-blue-400'}`}>Scheduled for later</p>
+                    <p className="font-medium text-sm" style={{ color: 'var(--color-accent)' }}>{upcomingEvents} upcoming event{upcomingEvents > 1 ? 's' : ''}</p>
+                    <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Scheduled for later</p>
                   </div>
                 </div>
               )}
               {overdueTasks === 0 && pendingTasks === 0 && upcomingEvents === 0 && (
-                <div className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? 'bg-emerald-900/20 border border-emerald-800' : 'bg-emerald-50'}`}>
-                  <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+                <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--color-success-bg)' }}>
+                  <CheckCircle2 className="h-5 w-5 shrink-0" style={{ color: 'var(--color-success)' }} />
                   <div>
-                    <p className={`font-medium text-sm ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>All caught up! 🎉</p>
-                    <p className={`text-xs ${isDark ? 'text-emerald-500' : 'text-emerald-400'}`}>No pending items</p>
+                    <p className="font-medium text-sm" style={{ color: 'var(--color-success)' }}>All caught up! 🎉</p>
+                    <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>No pending items</p>
                   </div>
                 </div>
               )}
@@ -590,15 +597,15 @@ export function Dashboard() {
 
       {/* Suggestions */}
       {isVisible('suggestions') && (
-        <div className={`rounded-2xl p-6 border ${isDark ? 'bg-amber-900/10 border-amber-800/40' : 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'} transition-colors duration-300`}>
-          <h3 className={`font-semibold mb-4 flex items-center gap-2 ${isDark ? 'text-amber-300' : 'text-slate-900'}`}>
-            <Lightbulb className="h-5 w-5 text-amber-500" /> Improvement Suggestions
+        <div className="rounded-2xl p-6" style={{ background: 'var(--color-warning-bg)', border: '1px solid var(--color-border-primary)' }}>
+          <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+            <Lightbulb className="h-5 w-5" style={{ color: 'var(--color-warning)' }} /> Improvement Suggestions
           </h3>
           <div className="space-y-2">
             {suggestions.map((s, i) => (
               <div key={i} className="flex items-start gap-3">
                 <span className="text-amber-500 shrink-0 mt-0.5">•</span>
-                <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>{s}</p>
+                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{s}</p>
               </div>
             ))}
           </div>
@@ -614,10 +621,10 @@ export function Dashboard() {
             { icon: IndianRupee, color: 'text-emerald-500', value: `₹${totalIncome.toLocaleString()}`, label: 'Total Income' },
             { icon: Clock, color: 'text-red-500', value: `₹${totalExpenses.toLocaleString()}`, label: 'Total Expenses' },
           ].map(({ icon: Icon, color, value, label }) => (
-            <div key={label} className={`rounded-xl p-4 shadow-sm border ${card} flex items-center gap-3 transition-colors duration-300`}>
+            <div key={label} className="rounded-xl p-4 apple-card flex items-center gap-3">
               <Icon className={`h-7 w-7 ${color} shrink-0`} />
               <div className="min-w-0">
-                <p className={`text-lg font-bold truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>{value}</p>
+                <p className="text-lg font-bold truncate" style={{ color: 'var(--color-text-primary)' }}>{value}</p>
                 <p className={`text-xs ${subText}`}>{label}</p>
               </div>
             </div>

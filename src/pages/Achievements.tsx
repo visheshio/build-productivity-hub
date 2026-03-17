@@ -124,7 +124,7 @@ export function Achievements() {
                       <span className={`text-xs font-bold ${isDark ? 'text-violet-400' : 'text-violet-600'}`}>{percent}%</span>
                     </div>
                     <div className={`h-1.5 rounded-full ${isDark ? 'bg-gray-800' : 'bg-slate-100'}`}>
-                      <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-600 transition-all" style={{ width: `${percent}%` }} />
+                      <div className="h-full rounded-full bg-[var(--color-accent)] transition-all" style={{ width: `${percent}%` }} />
                     </div>
                   </div>
                 </div>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
 import { modalBackdrop, modalContent } from '../../utils/animations';
 
 interface ModalProps {
@@ -13,9 +12,6 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-
   const maxW = size === 'sm' ? 'max-w-sm' : size === 'lg' ? 'max-w-2xl' : 'max-w-lg';
 
   return (
@@ -27,7 +23,12 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
             initial="initial"
             animate="animate"
             exit="exit"
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0"
+            style={{
+              backgroundColor: 'var(--color-overlay)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
             onClick={onClose}
           />
           <motion.div
@@ -35,17 +36,25 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
             initial="initial"
             animate="animate"
             exit="exit"
-            className={`relative rounded-2xl shadow-2xl w-full ${maxW} max-h-[90vh] overflow-hidden transition-colors duration-300 ${
-              isDark ? 'bg-gray-900 border border-gray-700' : 'bg-white border border-slate-100'
-            }`}
+            className={`relative rounded-[var(--radius-xl)] w-full ${maxW} max-h-[90vh] overflow-hidden`}
+            style={{
+              background: 'var(--color-vibrancy-heavy)',
+              backdropFilter: 'blur(40px)',
+              WebkitBackdropFilter: 'blur(40px)',
+              border: '1px solid var(--color-border-subtle)',
+              boxShadow: 'var(--shadow-xl)',
+              transition: 'background var(--duration-slow) var(--ease-apple)',
+            }}
           >
-            <div className={`flex items-center justify-between px-5 py-4 border-b ${isDark ? 'border-gray-800' : 'border-slate-100'}`}>
-              <h2 className={`text-base font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{title}</h2>
+            <div className="flex items-center justify-between px-5 py-4"
+              style={{ borderBottom: '1px solid var(--color-border-secondary)' }}>
+              <h2 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.02em' }}>{title}</h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
-                className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-slate-100 text-slate-500'}`}
+                className="p-1.5 rounded-lg smooth-transition"
+                style={{ color: 'var(--color-text-tertiary)' }}
               >
                 <X className="h-5 w-5" />
               </motion.button>
