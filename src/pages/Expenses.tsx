@@ -183,7 +183,11 @@ export function Expenses() {
           />
           <button
             onClick={() => setIsBudgetModalOpen(true)}
-            className={`flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white rounded-xl font-medium hover:${isDark ? 'bg-gray-800' : 'bg-slate-50'} transition-colors`}
+            className={`flex items-center gap-2 px-4 py-2 border rounded-xl font-medium transition-colors ${
+              isDark 
+                ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700' 
+                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+            }`}
           >
             <PiggyBank className="h-5 w-5" />
             Set Budget
@@ -502,7 +506,11 @@ export function Expenses() {
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className={`flex-1 px-4 py-2 border border-slate-200 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-50 transition-colors`}
+              className={`flex-1 px-4 py-2 border rounded-xl font-medium transition-colors ${
+                isDark 
+                  ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700' 
+                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+              }`}
             >
               Cancel
             </button>
@@ -553,7 +561,11 @@ export function Expenses() {
             <button
               type="button"
               onClick={() => setIsBudgetModalOpen(false)}
-              className={`flex-1 px-4 py-2 border border-slate-200 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-50 transition-colors`}
+              className={`flex-1 px-4 py-2 border rounded-xl font-medium transition-colors ${
+                isDark 
+                  ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700' 
+                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+              }`}
             >
               Cancel
             </button>

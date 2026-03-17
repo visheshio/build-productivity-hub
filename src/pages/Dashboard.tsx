@@ -116,7 +116,7 @@ export function Dashboard() {
     });
   }, [state.todos, state.journalEntries, state.habits, state.pomodoroSessions, state.notes]);
 
-  const card = 'apple-card';
+
   const subText = 'text-[var(--color-text-secondary)]';
   const tooltipStyle = {
     backgroundColor: 'var(--color-surface-primary)',

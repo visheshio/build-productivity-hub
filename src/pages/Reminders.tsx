@@ -256,25 +256,25 @@ export function Reminders() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => quickAddReminder(5, '5 minutes')}
-            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
+            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-black' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
           >
             In 5 min
           </button>
           <button
             onClick={() => quickAddReminder(15, '15 minutes')}
-            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
+            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-black' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
           >
             In 15 min
           </button>
           <button
             onClick={() => quickAddReminder(30, '30 minutes')}
-            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
+            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-black' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
           >
             In 30 min
           </button>
           <button
             onClick={() => quickAddReminder(60, '1 hour')}
-            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
+            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-black' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
           >
             In 1 hour
           </button>
@@ -291,7 +291,7 @@ export function Reminders() {
                 },
               });
             }}
-            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
+            className={`px-4 py-2 bg-slate-100 ${isDark ? 'text-black' : 'text-slate-700'} rounded-xl hover:bg-slate-200 transition-colors`}
           >
             Tomorrow
           </button>
@@ -419,7 +419,11 @@ export function Reminders() {
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className={`flex-1 px-4 py-2 border border-slate-200 ${isDark ? 'text-gray-300' : 'text-slate-700'} rounded-xl hover:bg-slate-50 transition-colors`}
+              className={`flex-1 px-4 py-2 border rounded-xl font-medium transition-colors ${
+                isDark 
+                  ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700' 
+                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+              }`}
             >
               Cancel
             </button>

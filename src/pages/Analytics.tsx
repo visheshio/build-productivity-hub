@@ -104,6 +104,7 @@ const Analytics: React.FC = () => {
   const cardClass = isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200';
   const textClass = isDark ? 'text-gray-100' : 'text-gray-900';
   const mutedTextClass = isDark ? 'text-gray-400' : 'text-gray-600';
+  const chartTextColor = isDark ? '#9ca3af' : '#4b5563';
 
   return (
     <div className={`p-6 min-h-screen ${bgClass}`}>
@@ -192,8 +193,8 @@ const Analytics: React.FC = () => {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#404040' : '#e5e7eb'} />
-                <XAxis stroke={mutedTextClass} />
-                <YAxis stroke={mutedTextClass} />
+                <XAxis stroke={chartTextColor} />
+                <YAxis stroke={chartTextColor} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: isDark ? '#1f2937' : '#fff', border: `1px solid ${isDark ? '#404040' : '#e5e7eb'}` }}
                   labelStyle={{ color: textClass }}
@@ -209,8 +210,8 @@ const Analytics: React.FC = () => {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={tasksByPriority}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#404040' : '#e5e7eb'} />
-                <XAxis stroke={mutedTextClass} />
-                <YAxis stroke={mutedTextClass} />
+                <XAxis stroke={chartTextColor} />
+                <YAxis stroke={chartTextColor} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: isDark ? '#1f2937' : '#fff', border: `1px solid ${isDark ? '#404040' : '#e5e7eb'}` }}
                   labelStyle={{ color: textClass }}
@@ -324,8 +325,8 @@ const Analytics: React.FC = () => {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={habitCompletionData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#404040' : '#e5e7eb'} />
-                <XAxis stroke={mutedTextClass} dataKey="name" />
-                <YAxis stroke={mutedTextClass} />
+                <XAxis stroke={chartTextColor} dataKey="name" />
+                <YAxis stroke={chartTextColor} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: isDark ? '#1f2937' : '#fff', border: `1px solid ${isDark ? '#404040' : '#e5e7eb'}` }}
                   labelStyle={{ color: textClass }}

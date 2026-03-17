@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import plugin from 'tailwindcss/plugin';
 
 export default {
   content: [
@@ -128,7 +129,7 @@ export default {
 
   plugins: [
     /* Custom plugin for animation utility classes */
-    function ({ addUtilities }) {
+    plugin(function ({ addUtilities }) {
       const newUtilities = {
         '.animate-in': {
           animation: 'slideDown 500ms cubic-bezier(0.34, 1.56, 0.64, 1)',
@@ -153,7 +154,7 @@ export default {
       };
 
       addUtilities(newUtilities);
-    },
+    }),
   ],
 
   darkMode: 'class',

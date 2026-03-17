@@ -188,7 +188,9 @@ export function Todos() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl font-medium transition-colors ${showFilters ? 'bg-slate-100' : 'bg-white hover:bg-slate-50'
+            className={`flex items-center gap-2 px-4 py-2 border rounded-xl font-medium transition-colors ${showFilters 
+                ? (isDark ? 'bg-gray-800 border-gray-700 text-white' : 'bg-slate-100 border-slate-200 text-slate-900')
+                : (isDark ? 'bg-gray-900 border-gray-800 text-gray-300 hover:bg-gray-800' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700')
               }`}
           >
             <Filter className="h-5 w-5" />
