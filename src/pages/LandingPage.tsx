@@ -55,7 +55,7 @@ export function LandingPage() {
             initial="hidden" animate="visible" variants={staggerContainer}
             className="max-w-4xl mx-auto"
           >
-            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 font-bold text-xs tracking-widest uppercase mb-8">
+            <motion.div x={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 font-bold text-xs tracking-widest uppercase mb-8">
               <Sparkles className="h-3.5 w-3.5" />
               The Ultimate Digital Sanctuary
             </motion.div>
