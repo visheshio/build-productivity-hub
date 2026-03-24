@@ -571,6 +571,383 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* =====================================================================
+   APPLE TYPOGRAPHY SCALE (HIG)
+   ===================================================================== */
+
+.apple-title-large {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  line-height: 1.15;
+  color: var(--color-text-primary);
+}
+
+.apple-title-1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+
+.apple-title-2 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+  color: var(--color-text-primary);
+}
+
+.apple-title-3 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+
+.apple-headline {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+}
+
+.apple-body {
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.apple-callout {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--color-text-primary);
+}
+
+.apple-subheadline {
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.apple-footnote {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--color-text-secondary);
+}
+
+.apple-caption-1 {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--color-text-tertiary);
+}
+
+.apple-caption-2 {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: var(--color-text-tertiary);
+}
+
+/* =====================================================================
+   ADDITIONAL BUTTON VARIANTS
+   ===================================================================== */
+
+.apple-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  color: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-apple);
+}
+
+.apple-btn-ghost:hover {
+  background: var(--color-accent-subtle);
+}
+
+.apple-btn-ghost:active {
+  transform: scale(0.97);
+}
+
+.apple-btn-destructive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  background: var(--color-error);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-apple);
+}
+
+.apple-btn-destructive:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+}
+
+.apple-btn-destructive:active {
+  transform: scale(0.97);
+}
+
+.apple-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-apple);
+}
+
+.apple-btn-icon:hover {
+  background: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+}
+
+.apple-btn-icon:active {
+  transform: scale(0.92);
+}
+
+/* =====================================================================
+   iOS TOGGLE SWITCH
+   ===================================================================== */
+
+.apple-toggle {
+  position: relative;
+  display: inline-block;
+  width: 51px;
+  height: 31px;
+  flex-shrink: 0;
+}
+
+.apple-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.apple-toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: #e9e9ea;
+  transition: background-color var(--duration-normal) var(--ease-apple);
+  cursor: pointer;
+}
+
+.dark .apple-toggle-track {
+  background: #39393d;
+}
+
+.apple-toggle input:checked + .apple-toggle-track {
+  background: var(--color-success);
+}
+
+.apple-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 9999px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.08);
+  transition: transform var(--duration-normal) var(--ease-apple-spring);
+  pointer-events: none;
+}
+
+.apple-toggle input:checked ~ .apple-toggle-thumb {
+  transform: translateX(20px);
+}
+
+/* =====================================================================
+   SEGMENTED CONTROL (Apple-style)
+   ===================================================================== */
+
+.apple-segmented {
+  display: inline-flex;
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 0;
+  position: relative;
+}
+
+.dark .apple-segmented {
+  background: var(--color-bg-tertiary);
+}
+
+.apple-segmented-item {
+  position: relative;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-apple);
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.apple-segmented-item:hover:not(.apple-segmented-active) {
+  color: var(--color-text-primary);
+}
+
+.apple-segmented-active {
+  color: var(--color-text-primary);
+  background: var(--color-surface-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.dark .apple-segmented-active {
+  background: var(--color-surface-secondary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* =====================================================================
+   FILTER PILL CHIPS
+   ===================================================================== */
+
+.apple-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 9999px;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-apple);
+  white-space: nowrap;
+}
+
+.apple-pill:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.apple-pill-active {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.apple-pill-active:hover {
+  background: var(--color-accent-hover);
+  color: #ffffff;
+}
+
+/* =====================================================================
+   APPLE SETTINGS ROW
+   ===================================================================== */
+
+.apple-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 16px;
+  background: var(--color-surface-primary);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-apple);
+}
+
+.apple-settings-row:hover {
+  background: var(--color-surface-secondary);
+}
+
+.apple-settings-row:not(:last-child) {
+  border-bottom: 0.5px solid var(--color-border-secondary);
+}
+
+.apple-settings-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.apple-settings-label {
+  flex: 1;
+  font-size: 17px;
+  color: var(--color-text-primary);
+}
+
+.apple-settings-value {
+  font-size: 17px;
+  color: var(--color-text-secondary);
+}
+
+/* =====================================================================
+   BADGE
+   ===================================================================== */
+
+.apple-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
+}
+
+.apple-badge-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.apple-badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.apple-badge-error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+/* =====================================================================
    AUTOSUGGEST ANIMATIONS
    ===================================================================== */
 

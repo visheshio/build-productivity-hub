@@ -78,14 +78,18 @@ export function CommandPalette() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]" onClick={() => setIsOpen(false)}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh]" onClick={() => setIsOpen(false)}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" />
       <div
-        className={`relative w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden ${isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-slate-200'}`}
+        className={`relative w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden transition-all ${
+          isDark
+            ? 'bg-gray-900/90 border-gray-700/60 backdrop-blur-xl'
+            : 'bg-white/90 border-slate-200/60 backdrop-blur-xl'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search input */}
-        <div className={`flex items-center gap-3 px-4 py-3 border-b ${isDark ? 'border-gray-800' : 'border-slate-100'}`}>
+        <div className={`flex items-center gap-3 px-4 py-3.5 border-b ${isDark ? 'border-gray-800/60' : 'border-slate-100'}`}>
           <Search className={`h-5 w-5 shrink-0 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
           <input
             ref={inputRef}
@@ -93,51 +97,73 @@ export function CommandPalette() {
             onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
             onKeyDown={handleInputKeyDown}
             placeholder="Type a command or search..."
-            className={`flex-1 bg-transparent outline-none text-sm ${isDark ? 'text-white placeholder:text-gray-500' : 'text-slate-900 placeholder:text-slate-400'}`}
+            className={`flex-1 bg-transparent outline-none text-sm font-medium ${isDark ? 'text-white placeholder:text-gray-500' : 'text-slate-900 placeholder:text-slate-400'}`}
           />
-          <kbd className={`hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-mono ${isDark ? 'bg-gray-800 text-gray-500' : 'bg-slate-100 text-slate-400'}`}>ESC</kbd>
+          <kbd className={`hidden sm:inline-flex items-center gap-0.5 px-2 py-1 rounded-md text-[10px] font-semibold tracking-wider ${isDark ? 'bg-gray-800 text-gray-500 border border-gray-700' : 'bg-slate-100 text-slate-400 border border-slate-200'}`}>ESC</kbd>
         </div>
 
         {/* Results */}
-        <div className="max-h-72 overflow-y-auto p-1.5">
+        <div className="max-h-80 overflow-y-auto p-1.5">
           {filtered.length === 0 ? (
-            <div className={`text-center py-8 text-sm ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>No results found</div>
+            <div className={`text-center py-10 text-sm ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+              <Search className="h-8 w-8 mx-auto mb-2 opacity-30" />
+              No results for &ldquo;{query}&rdquo;
+            </div>
           ) : (
-            filtered.map((action, idx) => (
-              <button
-                key={action.id}
-                onClick={() => handleSelect(action)}
-                onMouseEnter={() => setSelectedIndex(idx)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${
-                  idx === selectedIndex
-                    ? isDark ? 'bg-gray-800' : 'bg-violet-50'
-                    : 'hover:bg-gray-800/50'
-                }`}
-              >
-                <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
-                  idx === selectedIndex
-                    ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white'
-                    : isDark ? 'bg-gray-800 text-gray-400' : 'bg-slate-100 text-slate-500'
-                }`}>
-                  {action.icon}
+            Object.entries(
+              filtered.reduce((groups, action) => {
+                const cat = action.category;
+                if (!groups[cat]) groups[cat] = [];
+                groups[cat].push(action);
+                return groups;
+              }, {} as Record<string, QuickAction[]>)
+            ).map(([category, items]) => (
+              <div key={category}>
+                <div className={`px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest ${isDark ? 'text-gray-600' : 'text-slate-400'}`}>
+                  {category}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>{action.label}</p>
-                  <p className={`text-xs truncate ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{action.description}</p>
-                </div>
-                {idx === selectedIndex && <ArrowRight className={`h-4 w-4 shrink-0 ${isDark ? 'text-violet-400' : 'text-violet-500'}`} />}
-              </button>
+                {items.map((action) => {
+                  const globalIdx = filtered.indexOf(action);
+                  return (
+                    <button
+                      key={action.id}
+                      onClick={() => handleSelect(action)}
+                      onMouseEnter={() => setSelectedIndex(globalIdx)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 ${
+                        globalIdx === selectedIndex
+                          ? isDark ? 'bg-gray-800/80' : 'bg-violet-50'
+                          : isDark ? 'hover:bg-gray-800/40' : 'hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-all ${
+                        globalIdx === selectedIndex
+                          ? 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-md'
+                          : isDark ? 'bg-gray-800 text-gray-400' : 'bg-slate-100 text-slate-500'
+                      }`}>
+                        {action.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>{action.label}</p>
+                        <p className={`text-xs truncate ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{action.description}</p>
+                      </div>
+                      {globalIdx === selectedIndex && <ArrowRight className={`h-4 w-4 shrink-0 ${isDark ? 'text-violet-400' : 'text-violet-500'}`} />}
+                    </button>
+                  );
+                })}
+              </div>
             ))
           )}
         </div>
 
         {/* Footer */}
-        <div className={`px-4 py-2 border-t flex items-center gap-4 ${isDark ? 'border-gray-800' : 'border-slate-100'}`}>
-          <span className={`text-xs flex items-center gap-1 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+        <div className={`px-4 py-2.5 border-t flex items-center justify-between ${isDark ? 'border-gray-800/60' : 'border-slate-100'}`}>
+          <span className={`text-[10px] font-semibold flex items-center gap-1 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
             <Command className="h-3 w-3" />K to toggle
           </span>
-          <span className={`text-xs ${isDark ? 'text-gray-600' : 'text-slate-300'}`}>↑↓ navigate</span>
-          <span className={`text-xs ${isDark ? 'text-gray-600' : 'text-slate-300'}`}>↵ select</span>
+          <div className="flex items-center gap-3">
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${isDark ? 'bg-gray-800 text-gray-500' : 'bg-slate-100 text-slate-400'}`}>↑↓ navigate</span>
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${isDark ? 'bg-gray-800 text-gray-500' : 'bg-slate-100 text-slate-400'}`}>↵ select</span>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, useState, useCallback, ReactNode } from 'react';
-import { Note, Todo, Expense, Budget, Habit, Event, Reminder, Goal, PomodoroSession, TimeEntry, JournalEntry, Achievement, AchievementType, DailyChallenge } from '../types';
+import { Note, Todo, Expense, Budget, Habit, Event, Reminder, Goal, PomodoroSession, TimeEntry, JournalEntry, Achievement, AchievementType, DailyChallenge, Roadmap } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
@@ -19,6 +19,7 @@ import * as timeEntriesService from '../lib/services/time-entries.service';
 import * as journalService from '../lib/services/journal.service';
 import * as achievementsService from '../lib/services/achievements.service';
 import * as challengesService from '../lib/services/challenges.service';
+import * as roadmapsService from '../lib/services/roadmaps.service';
 
 // ─── State Types ─────────────────────────────────────────────────────────────
 
@@ -36,6 +37,7 @@ export interface AppState {
   journalEntries: JournalEntry[];
   achievements: Achievement[];
   dailyChallenges: DailyChallenge[];
+  roadmaps: Roadmap[];
 }
 
 type Action =
@@ -83,7 +85,13 @@ type Action =
   | { type: 'SET_DAILY_CHALLENGES'; payload: DailyChallenge[] }
   | { type: 'UPDATE_CHALLENGE_PROGRESS'; payload: { id: string; currentCount: number } }
   | { type: 'COMPLETE_CHALLENGE'; payload: string }
-  | { type: 'LOAD_STATE'; payload: AppState };
+  | { type: 'LOAD_STATE'; payload: AppState }
+  // Roadmaps
+  | { type: 'ADD_ROADMAP'; payload: Omit<Roadmap, 'id' | 'created_at' | 'updated_at'> }
+  | { type: 'UPDATE_ROADMAP'; payload: Roadmap }
+  | { type: 'DELETE_ROADMAP'; payload: string }
+  | { type: 'TOGGLE_ROADMAP_MILESTONE'; payload: { roadmapId: string; phaseId: string; milestoneId: string } }
+  | { type: 'TOGGLE_ROADMAP_TASK'; payload: { roadmapId: string; phaseId: string; milestoneId: string; taskId: string } };
 
 // ─── Initial State ───────────────────────────────────────────────────────────
 
@@ -101,6 +109,7 @@ const emptyState: AppState = {
   journalEntries: [],
   achievements: [],
   dailyChallenges: [],
+  roadmaps: [],
 };
 
 // ─── Streak Calculator ──────────────────────────────────────────────────────
@@ -435,6 +444,57 @@ function appReducer(state: AppState, action: Action): AppState {
         ),
       };
 
+    // --- Roadmaps ---
+    case 'ADD_ROADMAP':
+      return {
+        ...state,
+        roadmaps: [
+          ...state.roadmaps,
+          { ...action.payload, id: uuidv4(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as Roadmap,
+        ],
+      };
+    case 'UPDATE_ROADMAP':
+      return {
+        ...state,
+        roadmaps: state.roadmaps.map((r) =>
+          r.id === action.payload.id ? { ...action.payload, updated_at: new Date().toISOString() } : r
+        ),
+      };
+    case 'DELETE_ROADMAP':
+      return {
+        ...state,
+        roadmaps: state.roadmaps.filter((r) => r.id !== action.payload),
+      };
+    case 'TOGGLE_ROADMAP_MILESTONE': {
+      const { roadmapId, phaseId, milestoneId } = action.payload;
+      return {
+        ...state,
+        roadmaps: state.roadmaps.map(r => r.id === roadmapId ? {
+          ...r,
+          phases: r.phases.map(p => p.id === phaseId ? {
+            ...p,
+            milestones: p.milestones.map(m => m.id === milestoneId ? { ...m, is_completed: !m.is_completed } : m)
+          } : p)
+        } : r)
+      };
+    }
+    case 'TOGGLE_ROADMAP_TASK': {
+      const { roadmapId, phaseId, milestoneId, taskId } = action.payload;
+      return {
+        ...state,
+        roadmaps: state.roadmaps.map(r => r.id === roadmapId ? {
+          ...r,
+          phases: r.phases.map(p => p.id === phaseId ? {
+            ...p,
+            milestones: p.milestones.map(m => m.id === milestoneId ? {
+              ...m,
+              tasks: m.tasks.map(t => t.id === taskId ? { ...t, is_completed: !t.is_completed } : t)
+            } : m)
+          } : p)
+        } : r)
+      };
+    }
+
     case 'LOAD_STATE':
       return action.payload;
     default:
@@ -486,6 +546,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           journalEntries,
           achievements,
           dailyChallenges,
+          roadmaps,
         ] = await Promise.all([
           notesService.fetchNotes(),
           todosService.fetchTodos(),
@@ -500,6 +561,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           journalService.fetchJournalEntries(),
           achievementsService.seedDefaultAchievements(),
           challengesService.fetchDailyChallenges(),
+          roadmapsService.fetchRoadmaps(),
         ]);
 
         if (!cancelled) {
@@ -519,6 +581,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               journalEntries,
               achievements,
               dailyChallenges,
+              roadmaps,
             },
           });
         }
@@ -550,7 +613,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const [
             notes, todos, expenses, budgets, habits, events, reminders,
             goals, pomodoroSessions, timeEntries, journalEntries,
-            achievements, dailyChallenges,
+            achievements, dailyChallenges, roadmaps,
           ] = await Promise.all([
             notesService.fetchNotes(),
             todosService.fetchTodos(),
@@ -565,13 +628,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
             journalService.fetchJournalEntries(),
             achievementsService.fetchAchievements(),
             challengesService.fetchDailyChallenges(),
+            roadmapsService.fetchRoadmaps(),
           ]);
           dispatch({
             type: 'LOAD_STATE',
             payload: {
               notes, todos, expenses, budgets, habits, events, reminders,
               goals, pomodoroSessions, timeEntries, journalEntries,
-              achievements, dailyChallenges,
+              achievements, dailyChallenges, roadmaps,
             },
           });
         } catch (err) {
@@ -762,6 +826,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
               if (ch) await challengesService.completeChallenge(action.payload, ch.targetCount);
               break;
             }
+
+            // Roadmaps
+            case 'ADD_ROADMAP':
+              await roadmapsService.createRoadmap(action.payload);
+              break;
+            case 'UPDATE_ROADMAP':
+              await roadmapsService.updateRoadmap(action.payload);
+              break;
+            case 'DELETE_ROADMAP':
+              await roadmapsService.deleteRoadmap(action.payload);
+              break;
 
             // LOAD_STATE is local-only
             case 'LOAD_STATE':

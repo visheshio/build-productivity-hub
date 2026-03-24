@@ -111,8 +111,8 @@ const Analytics: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className={`text-4xl font-bold ${textClass} mb-2`}>Analytics Dashboard</h1>
-          <p className={`${mutedTextClass}`}>Comprehensive analysis of all your activities</p>
+          <h1 className="apple-title-large mb-2">Analytics Dashboard</h1>
+          <p className="apple-subheadline">Comprehensive analysis of all your activities</p>
         </div>
 
         {/* Time Range Selector */}
@@ -121,13 +121,7 @@ const Analytics: React.FC = () => {
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                timeRange === range
-                  ? 'bg-blue-500 text-white'
-                  : isDark
-                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              className={`apple-pill ${timeRange === range ? 'apple-pill-active' : ''}`}
             >
               {range.charAt(0).toUpperCase() + range.slice(1)}
             </button>

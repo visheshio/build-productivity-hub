@@ -74,8 +74,8 @@ export function Notes() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className={`text-2xl lg:text-3xl font-bold ${dm.cardTitle}`}>Notes</h1>
-          <p className={dm.subText}>Capture your thoughts and ideas</p>
+          <h1 className="apple-title-large">Notes</h1>
+          <p className="apple-subheadline">Capture your thoughts and ideas</p>
         </div>
         <div className="flex gap-2">
           <ExportButton

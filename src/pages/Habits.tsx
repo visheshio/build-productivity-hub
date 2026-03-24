@@ -132,10 +132,15 @@ export function Habits() {
         transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
-        <div>
-          <h1 className={`text-2xl lg:text-3xl font-bold ${cardTitle}`}>Habit Tracker</h1>
-          <p className={`mt-1 ${subText}`}>Build good habits and track your progress</p>
+        <div className="flex items-center gap-3">
+          <h1 className="apple-title-large">Habit Tracker</h1>
+          {longestStreak > 0 && (
+            <span className="apple-badge" style={{ background: 'rgba(255,149,0,0.12)', color: '#FF9500' }}>
+              🔥 {longestStreak} day streak
+            </span>
+          )}
         </div>
+        <p className="apple-subheadline mt-1">Build good habits and track your progress</p>
         <div className="flex gap-2">
           <ExportButton
             onExport={() => { exportHabits(state.habits); toast.success('Habits exported!'); }}
@@ -166,7 +171,7 @@ export function Habits() {
             key={label}
             variants={staggerItem}
             whileHover={{ y: -2, transition: { duration: 0.15 } }}
-            className={`rounded-2xl p-4 border shadow-sm text-center ${card} transition-colors`}
+            className="rounded-2xl p-4 apple-card text-center transition-colors"
           >
             <div className={`h-10 w-10 rounded-xl ${iconBg} flex items-center justify-center mx-auto mb-2`}>
               <Icon className={`h-5 w-5 ${iconColor}`} />

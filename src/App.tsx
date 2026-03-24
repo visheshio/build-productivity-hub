@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AppProvider } from './context/AppContext';
 import { SuggestionsProvider } from './context/SuggestionsContext';
@@ -20,6 +20,9 @@ import Pomodoro from './pages/Pomodoro';
 import Goals from './pages/Goals';
 import Journal from './pages/Journal';
 import Achievements from './pages/Achievements';
+import { LandingPage } from './pages/LandingPage';
+import { WorkflowBuilder } from './pages/WorkflowBuilder';
+import { RoadmapView } from './pages/RoadmapView';
 
 function AppContent() {
   const { user, isLoading } = useAuth();
@@ -44,10 +47,6 @@ function AppContent() {
     );
   }
 
-  if (!user) {
-    return <AuthPage />;
-  }
-
   return (
     <AppProvider>
       <SuggestionsProvider>
@@ -67,25 +66,38 @@ function AppContent() {
               },
             }}
           />
-          {/* Global overlays */}
-          <CommandPalette />
-          <KeyboardShortcuts />
-          <Layout>
+          {!user ? (
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/notes" element={<Notes />} />
-              <Route path="/todos" element={<Todos />} />
-              <Route path="/expenses" element={<Expenses />} />
-              <Route path="/habits" element={<Habits />} />
-              <Route path="/scheduler" element={<Scheduler />} />
-              <Route path="/reminders" element={<Reminders />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/pomodoro" element={<Pomodoro />} />
-              <Route path="/goals" element={<Goals />} />
-              <Route path="/journal" element={<Journal />} />
-              <Route path="/achievements" element={<Achievements />} />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<AuthPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </Layout>
+          ) : (
+            <>
+              {/* Global overlays */}
+              <CommandPalette />
+              <KeyboardShortcuts />
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/notes" element={<Notes />} />
+                  <Route path="/todos" element={<Todos />} />
+                  <Route path="/expenses" element={<Expenses />} />
+                  <Route path="/habits" element={<Habits />} />
+                  <Route path="/scheduler" element={<Scheduler />} />
+                  <Route path="/reminders" element={<Reminders />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/pomodoro" element={<Pomodoro />} />
+                  <Route path="/goals" element={<Goals />} />
+                  <Route path="/journal" element={<Journal />} />
+                  <Route path="/achievements" element={<Achievements />} />
+                  <Route path="/roadmaps" element={<WorkflowBuilder />} />
+                  <Route path="/roadmaps/:id" element={<RoadmapView />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Layout>
+            </>
+          )}
         </BrowserRouter>
       </SuggestionsProvider>
     </AppProvider>

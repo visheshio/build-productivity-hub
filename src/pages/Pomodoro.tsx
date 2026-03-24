@@ -159,8 +159,8 @@ export function Pomodoro() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-2xl font-bold ${textPrimary}`}>Pomodoro Timer</h1>
-          <p className={`text-sm mt-1 ${textSecondary}`}>Stay focused with timed work sessions</p>
+          <h1 className="apple-title-large">Pomodoro Timer</h1>
+          <p className="apple-subheadline mt-1">Stay focused with timed work sessions</p>
         </div>
         <div className="flex items-center gap-2">
           <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${isDark ? 'bg-orange-500/10 text-orange-400' : 'bg-orange-50 text-orange-600'}`}>
@@ -233,14 +233,14 @@ export function Pomodoro() {
             {/* Controls */}
             <div className="flex items-center justify-center gap-3">
               {timerState === 'running' ? (
-                <button onClick={handlePause} className="h-14 w-14 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105">
-                  <Pause className="h-6 w-6" />
+                <button onClick={handlePause} className="h-16 w-16 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                  <Pause className="h-7 w-7" />
                 </button>
               ) : (
-                <button onClick={handleStart} className={`h-14 w-14 rounded-full text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105 ${
+                <button onClick={handleStart} className={`h-16 w-16 rounded-full text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105 ${
                   mode === 'work' ? 'bg-[var(--color-accent)]' : 'bg-gradient-to-r from-emerald-500 to-teal-600'
                 }`}>
-                  <Play className="h-6 w-6 ml-0.5" />
+                  <Play className="h-7 w-7 ml-0.5" />
                 </button>
               )}
               <button onClick={handleReset} className={`h-12 w-12 rounded-full flex items-center justify-center transition-all hover:scale-105 ${isDark ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
@@ -257,6 +257,16 @@ export function Pomodoro() {
                 {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
               </button>
             </div>
+
+            {/* Session counter dots */}
+            {todaySessions.length > 0 && (
+              <div className="flex items-center justify-center gap-2 mt-4">
+                {todaySessions.map((_, i) => (
+                  <div key={i} className="h-2.5 w-2.5 rounded-full bg-[var(--color-accent)]" />
+                ))}
+                <span className={`text-xs ml-1 font-medium ${textSecondary}`}>{todaySessions.length} today</span>
+              </div>
+            )}
 
             {/* Presets */}
             <div className={`mt-6 pt-6 border-t ${isDark ? 'border-gray-800' : 'border-slate-100'}`}>

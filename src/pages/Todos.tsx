@@ -180,8 +180,8 @@ export function Todos() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className={`text-2xl lg:text-3xl font-bold ${cardTitle}`}>To-Do List</h1>
-          <p className={`mt-1 ${subText}`}>Manage your tasks and stay productive</p>
+          <h1 className="apple-title-large">To-Do List</h1>
+          <p className="apple-subheadline mt-1">Manage your tasks and stay productive</p>
         </div>
         <div className="flex gap-2">
           <motion.button
@@ -278,23 +278,23 @@ export function Todos() {
         initial="initial"
         animate="animate"
       >
-        <motion.div variants={staggerItem} whileHover={{ y: -2 }} className={`rounded-xl p-4 border text-center transition-colors ${card}`}>
-          <p className={`text-2xl font-bold ${cardTitle}`}>
+        <motion.div variants={staggerItem} whileHover={{ y: -2 }} className="rounded-2xl p-4 apple-card text-center">
+          <p className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
             {state.todos.filter((t) => t.status === 'pending').length}
           </p>
-          <p className={`text-sm ${subText}`}>Pending</p>
+          <p className="apple-footnote">Pending</p>
         </motion.div>
-        <motion.div variants={staggerItem} whileHover={{ y: -2 }} className={`rounded-xl p-4 border text-center transition-colors ${card}`}>
-          <p className="text-2xl font-bold text-blue-500">
+        <motion.div variants={staggerItem} whileHover={{ y: -2 }} className="rounded-2xl p-4 apple-card text-center">
+          <p className="text-2xl font-bold" style={{ color: 'var(--color-accent)' }}>
             {state.todos.filter((t) => t.status === 'in-progress').length}
           </p>
-          <p className={`text-sm ${subText}`}>In Progress</p>
+          <p className="apple-footnote">In Progress</p>
         </motion.div>
-        <motion.div variants={staggerItem} whileHover={{ y: -2 }} className={`rounded-xl p-4 border text-center transition-colors ${card}`}>
-          <p className="text-2xl font-bold text-emerald-500">
+        <motion.div variants={staggerItem} whileHover={{ y: -2 }} className="rounded-2xl p-4 apple-card text-center">
+          <p className="text-2xl font-bold" style={{ color: 'var(--color-success)' }}>
             {state.todos.filter((t) => t.status === 'completed').length}
           </p>
-          <p className={`text-sm ${subText}`}>Completed</p>
+          <p className="apple-footnote">Completed</p>
         </motion.div>
       </motion.div>
 

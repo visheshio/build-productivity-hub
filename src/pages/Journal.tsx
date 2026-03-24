@@ -87,8 +87,8 @@ export function Journal() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className={`text-2xl font-bold ${textPrimary}`}>Daily Journal</h1>
-          <p className={`text-sm mt-1 ${textSecondary}`}>Reflect on your day and track your mood</p>
+          <h1 className="apple-title-large">Daily Journal</h1>
+          <p className="apple-subheadline mt-1">Reflect on your day and track your mood</p>
         </div>
         <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-accent)] text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
           <Plus className="h-4 w-4" /> New Entry

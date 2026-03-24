@@ -177,3 +177,82 @@ export interface WidgetConfig {
   visible: boolean;
   order: number;
 }
+
+// --- Phase 4: Workflow Builder ---
+
+export interface Roadmap {
+  id: string;
+  user_id: string;
+  skill: string;
+  duration_weeks: number;
+  daily_minutes: number;
+  experience_level: 'beginner' | 'some_basics' | 'intermediate' | 'advanced';
+  learning_preferences: string[];
+  goal_statement?: string;
+  phases: Phase[];
+  status: 'active' | 'completed' | 'paused' | 'archived';
+  progress_percentage: number;
+  started_at: string;
+  estimated_completion: string;
+  created_at: string;
+  updated_at: string;
+  ai_model_used: string;
+  raw_ai_response?: string;
+}
+
+export interface Phase {
+  id: string;
+  roadmap_id: string;
+  phase_number: number;
+  title: string;
+  description: string;
+  duration_text: string;
+  start_week: number;
+  end_week: number;
+  status: 'completed' | 'in_progress' | 'locked' | 'upcoming';
+  progress_percentage: number;
+  milestones: RoadmapMilestone[];
+  resources: Resource[];
+  order_index: number;
+}
+
+export interface RoadmapMilestone {
+  id: string;
+  phase_id: string;
+  title: string;
+  description?: string;
+  is_completed: boolean;
+  completed_at?: string;
+  tasks: RoadmapTask[];
+  linked_goal_id?: string;
+  order_index: number;
+}
+
+export interface RoadmapTask {
+  id: string;
+  milestone_id: string;
+  title: string;
+  description?: string;
+  estimated_minutes?: number;
+  suggested_date?: string;
+  is_completed: boolean;
+  completed_at?: string;
+  linked_todo_id?: string;
+  order_index: number;
+}
+
+export interface Resource {
+  id: string;
+  phase_id: string;
+  title: string;
+  url: string;
+  type: 'video' | 'article' | 'course' | 'podcast' | 'book' | 'app' | 'tool';
+  source: string;
+  author?: string;
+  duration?: string;
+  description: string;
+  is_consumed: boolean;
+  is_bookmarked: boolean;
+  milestone_id?: string;
+  order_index: number;
+}

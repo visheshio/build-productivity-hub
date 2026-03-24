@@ -96,8 +96,8 @@ export function Goals() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className={`text-2xl font-bold ${textPrimary}`}>Goals</h1>
-          <p className={`text-sm mt-1 ${textSecondary}`}>Set and track your short-term and long-term goals</p>
+          <h1 className="apple-title-large">Goals</h1>
+          <p className="apple-subheadline mt-1">Set and track your short-term and long-term goals</p>
         </div>
         <button onClick={() => { resetForm(); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-accent)] text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105">
           <Plus className="h-4 w-4" /> New Goal
@@ -108,11 +108,7 @@ export function Goals() {
       <div className="flex gap-2 flex-wrap">
         {['all', 'career', 'health', 'financial', 'personal'].map((cat) => (
           <button key={cat} onClick={() => setFilterCategory(cat)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              filterCategory === cat
-                ? 'bg-[var(--color-accent)] text-white shadow-md'
-                : isDark ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}>
+            className={`apple-pill ${filterCategory === cat ? 'apple-pill-active' : ''}`}>
             {cat === 'all' ? '🎯 All' : `${CATEGORY_COLORS[cat]?.icon} ${cat.charAt(0).toUpperCase() + cat.slice(1)}`}
           </button>
         ))}

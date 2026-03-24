@@ -11,7 +11,7 @@ import {
 import {
   CheckCircle2, Clock, Target, IndianRupee, Flame, TrendingUp,
   AlertTriangle, Lightbulb, StickyNote, Calendar, Timer, BookOpen,
-  Trophy, Zap, Eye, EyeOff,
+  Trophy, Zap, Eye, EyeOff, Plus, PenLine, DollarSign,
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
@@ -215,23 +215,25 @@ export function Dashboard() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex items-center justify-between"
+        className="flex items-start justify-between"
       >
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold" style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.02em' }}>
-            Dashboard
+          <h1 className="apple-title-large">
+            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, {firstName}
           </h1>
-          <p style={{ color: 'var(--color-text-secondary)' }}>Welcome back, {firstName}! Here's your productivity overview.</p>
+          <p className="apple-subheadline mt-1">{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.96 }}
-          onClick={() => setShowWidgetConfig(!showWidgetConfig)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium smooth-transition"
-          style={{ background: 'var(--color-surface-secondary)', color: 'var(--color-text-secondary)' }}>
-          {showWidgetConfig ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-          Widgets
-        </motion.button>
+        <div className="flex items-center gap-2">
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setShowWidgetConfig(!showWidgetConfig)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium smooth-transition"
+            style={{ background: 'var(--color-surface-secondary)', color: 'var(--color-text-secondary)' }}>
+            {showWidgetConfig ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+            Widgets
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* Widget config panel */}
@@ -294,24 +296,36 @@ export function Dashboard() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="rounded-2xl p-6 text-white"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-gradient-to))',
-            boxShadow: isDark ? '0 8px 32px rgba(41, 151, 255, 0.25)' : '0 8px 32px rgba(0, 113, 227, 0.2)',
-          }}
+          className="rounded-2xl p-6 apple-card"
+          style={{ border: 'none', background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-gradient-to))', boxShadow: isDark ? '0 8px 32px rgba(41, 151, 255, 0.25)' : '0 8px 32px rgba(0, 113, 227, 0.2)' }}
         >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="h-5 w-5" />
-                <span className="text-sm font-medium text-white/80">Productivity Score</span>
+            {/* Left: Score Ring */}
+            <div className="flex items-center gap-6">
+              <div className="relative" style={{ width: 120, height: 120 }}>
+                <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
+                  <circle
+                    cx="60" cy="60" r="52" fill="none" stroke="white" strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray={`${(productivityScore / 100) * 2 * Math.PI * 52} ${2 * Math.PI * 52}`}
+                    style={{ transition: 'stroke-dasharray 1s cubic-bezier(0.25, 0.1, 0.25, 1)' }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-bold text-white"><AnimatedNumber value={productivityScore} duration={900} /></span>
+                </div>
               </div>
-              <div className="text-6xl font-extrabold">
-                <AnimatedNumber value={productivityScore} duration={900} />
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="h-5 w-5 text-white/80" />
+                  <span className="text-sm font-medium text-white/80">Productivity Score</span>
+                </div>
+                <p className="text-white/60 text-sm">out of 100 points</p>
               </div>
-              <p className="text-white/70 mt-1 text-sm">out of 100 points</p>
             </div>
-            <div className="flex-1 max-w-sm space-y-2.5 text-sm">
+            {/* Right: Breakdown bars */}
+            <div className="flex-1 max-w-sm space-y-2.5 text-sm text-white">
               {[
                 { label: 'Tasks', score: taskScore, max: 30 },
                 { label: 'Habits', score: habitScore, max: 25 },
@@ -631,6 +645,32 @@ export function Dashboard() {
           ))}
         </div>
       )}
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+      >
+        {[
+          { icon: Plus, label: 'New Task', path: '/todos', bg: 'rgba(0,113,227,0.08)', color: 'var(--color-accent)' },
+          { icon: Timer, label: 'Start Timer', path: '/pomodoro', bg: 'rgba(255,59,48,0.08)', color: 'var(--color-error)' },
+          { icon: DollarSign, label: 'Add Expense', path: '/expenses', bg: 'rgba(52,199,89,0.08)', color: 'var(--color-success)' },
+          { icon: PenLine, label: 'Write Journal', path: '/journal', bg: 'rgba(175,82,222,0.08)', color: '#AF52DE' },
+        ].map(({ icon: QIcon, label, path, bg, color }) => (
+          <Link key={label} to={path}>
+            <motion.div
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              className="rounded-2xl p-5 apple-card flex flex-col items-center gap-3 cursor-pointer"
+              style={{ background: bg }}
+            >
+              <QIcon className="h-7 w-7" style={{ color }} />
+              <span className="apple-callout font-medium" style={{ color }}>{label}</span>
+            </motion.div>
+          </Link>
+        ))}
+      </motion.div>
     </div>
   );
 }

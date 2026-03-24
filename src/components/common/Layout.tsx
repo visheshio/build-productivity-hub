@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, StickyNote, CheckSquare, DollarSign,
   Target, Calendar, Bell, Menu, X, Sparkles, LogOut, ChevronDown, BarChart3,
-  Timer, BookOpen, Trophy, Search, Download,
+  Timer, BookOpen, Trophy, Search, Download, Map, MoreHorizontal
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth, getInitials } from '../../context/AuthContext';
@@ -19,6 +19,7 @@ const navSections = [
     label: 'Productivity',
     items: [
       { path: '/', label: 'Dashboard', icon: LayoutDashboard, color: 'text-blue-500' },
+      { path: '/roadmaps', label: 'Workflow Builder', icon: Map, color: 'text-indigo-500' },
       { path: '/pomodoro', label: 'Pomodoro', icon: Timer, color: 'text-rose-500' },
       { path: '/todos', label: 'To-Do List', icon: CheckSquare, color: 'text-emerald-500' },
       { path: '/goals', label: 'Goals', icon: Target, color: 'text-cyan-500' },
@@ -351,8 +352,50 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="sticky top-16 lg:top-0 z-20">
           <MotivationBar />
         </div>
-        <div className="flex-1 p-4 lg:p-8">{children}</div>
+        <div className="flex-1 p-4 lg:p-8 pb-24 lg:pb-8">{children}</div>
       </main>
+
+      {/* Mobile Bottom Tab Bar */}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50"
+        style={{
+          background: 'var(--color-vibrancy-heavy)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          borderTop: '0.5px solid var(--color-border-primary)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}
+      >
+        <div className="flex items-center justify-around h-[49px]">
+          {[
+            { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+            { path: '/todos', icon: CheckSquare, label: 'Tasks' },
+            { path: '/pomodoro', icon: Timer, label: 'Timer' },
+            { path: '/journal', icon: BookOpen, label: 'Journal' },
+          ].map((tab) => {
+            const isActive = location.pathname === tab.path;
+            return (
+              <Link
+                key={tab.path}
+                to={tab.path}
+                className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full"
+                style={{ color: isActive ? 'var(--color-accent)' : 'var(--color-text-tertiary)' }}
+              >
+                <tab.icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2.2 : 1.5} />
+                <span className="text-[10px] font-medium">{tab.label}</span>
+              </Link>
+            );
+          })}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full"
+            style={{ color: 'var(--color-text-tertiary)' }}
+          >
+            <MoreHorizontal className="h-[22px] w-[22px]" strokeWidth={1.5} />
+            <span className="text-[10px] font-medium">More</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

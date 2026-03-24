@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { Lock, Star } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { 
+  Lock, ArrowRight, CheckCircle2, RefreshCw, Check, Sparkles 
+} from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
 const ACHIEVEMENT_CHECKERS: Record<string, (state: any) => boolean> = {
@@ -17,13 +17,7 @@ const ACHIEVEMENT_CHECKERS: Record<string, (state: any) => boolean> = {
 };
 
 export function Achievements() {
-  const { theme } = useTheme();
   const { state, dispatch } = useApp();
-  const isDark = theme === 'dark';
-
-  const textPrimary = isDark ? 'text-white' : 'text-slate-900';
-  const textSecondary = isDark ? 'text-gray-400' : 'text-slate-500';
-  const cardBg = isDark ? 'bg-gray-900/60 border-gray-800' : 'bg-white/80 border-slate-200';
 
   // Check achievements
   useEffect(() => {
@@ -39,100 +33,167 @@ export function Achievements() {
 
   const unlocked = state.achievements.filter((a) => a.unlockedAt);
   const locked = state.achievements.filter((a) => !a.unlockedAt);
+  
+  const dailyChallenges = state.dailyChallenges || [];
 
-  // Progress for each achievement
-  const getProgress = (type: string): { current: number; target: number } => {
-    switch (type) {
-      case 'streak_master': return { current: Math.max(0, ...state.habits.map((h) => h.streakCount)), target: 30 };
-      case 'task_crusher': return { current: state.todos.filter((t) => t.status === 'completed').length, target: 100 };
-      case 'budget_pro': return { current: 0, target: 3 };
-      case 'early_bird': return { current: 0, target: 5 };
-      case 'note_taker': return { current: state.notes.length, target: 50 };
-      case 'focus_champion': return { current: state.pomodoroSessions.filter((p) => p.type === 'work').length, target: 50 };
-      case 'goal_setter': return { current: state.goals.filter((g) => g.progress >= 100).length, target: 5 };
-      case 'journal_keeper': return { current: state.journalEntries.length, target: 30 };
-      default: return { current: 0, target: 1 };
-    }
-  };
+  // Determine user level based on XP (mock calculation for UI)
+  const totalTasks = state.todos.filter((t) => t.status === 'completed').length;
+  const userXP = totalTasks * 50; 
+  const currentLevel = Math.floor(userXP / 1000) + 1;
+  const xpCurrentLevel = userXP % 1000;
+  const xpRequiredForNext = 1000;
+  const levelProgress = Math.min(100, (xpCurrentLevel / xpRequiredForNext) * 100);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className={`text-2xl font-bold ${textPrimary}`}>Achievements</h1>
-        <p className={`text-sm mt-1 ${textSecondary}`}>Track your milestones and unlock badges</p>
-      </div>
+    <div className="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary">
+      <main className="py-2 space-y-16">
+        
+        {/* Hero Section */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white to-surface-container-low p-8 md:p-12 shadow-sm border border-white/50">
+          <div className="absolute -right-20 -top-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
+          <div className="absolute -left-10 -bottom-10 w-60 h-60 bg-secondary-container/20 rounded-full blur-3xl"></div>
+          <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
+            
+            <div className="order-2 md:order-1">
+              <span className="label-md uppercase tracking-[0.2em] text-primary font-bold text-xs mb-4 block">Current Ranking</span>
+              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-on-surface mb-6">
+                Level {currentLevel}
+              </h1>
+              <p className="text-on-surface-variant text-lg leading-relaxed mb-8 max-w-md">
+                You're making great progress! Keep completing tasks, habits, and sessions to unlock more titles and rewards.
+              </p>
+              
+              {/* Focus Glass Widget / Progress */}
+              <div className="glass-card beveled-glass rounded-3xl p-6 shadow-xl shadow-blue-900/5 bg-white/70 backdrop-blur-xl">
+                <div className="flex justify-between items-end mb-4">
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Progress to Level {currentLevel + 1}</p>
+                    <p className="text-2xl font-bold text-on-surface">{xpCurrentLevel} / {xpRequiredForNext} XP</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">{Math.round(levelProgress)}% Complete</span>
+                  </div>
+                </div>
+                <div className="h-4 w-full bg-surface-container rounded-full overflow-hidden p-1">
+                  <div className="h-full bg-gradient-to-r from-primary to-primary-container rounded-full relative overflow-hidden transition-all duration-1000" style={{ width: `${levelProgress}%` }}>
+                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <div className={`rounded-2xl border p-4 ${cardBg} backdrop-blur-sm`}>
-          <p className={`text-xs font-semibold uppercase ${textSecondary}`}>Unlocked</p>
-          <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>{unlocked.length}</p>
-        </div>
-        <div className={`rounded-2xl border p-4 ${cardBg} backdrop-blur-sm`}>
-          <p className={`text-xs font-semibold uppercase ${textSecondary}`}>Locked</p>
-          <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{locked.length}</p>
-        </div>
-        <div className={`rounded-2xl border p-4 ${cardBg} backdrop-blur-sm`}>
-          <p className={`text-xs font-semibold uppercase ${textSecondary}`}>Completion</p>
-          <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-violet-400' : 'text-violet-600'}`}>
-            {state.achievements.length > 0 ? Math.round((unlocked.length / state.achievements.length) * 100) : 0}%
-          </p>
-        </div>
-      </div>
+            <div className="order-1 md:order-2 flex justify-center items-center">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-primary/20 blur-[100px] group-hover:bg-primary/30 transition-colors duration-500"></div>
+                <img 
+                  alt="3D Gold Trophy" 
+                  className="w-64 h-64 md:w-80 md:h-80 object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-700" 
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKJVu8qSDkPyELEnOa078hnm8gzcsCkFZGwGYyfkVk5BLgZeCrUVIReZc_3q7UWjWv-n53i95-nindOm_wbb_RyUgAHXgmlVzobTKbzpCP-EvcB5adokf-gwpz2S0cAZtO0dBnJVxsE8CiPc4GtTVIoKQzQE5rZYsE-2O9Ev8D0998rTJ59t4xP2pKSgojiLUpFkFQAu-1g85_L13OAjN7IrJ2g3snBYzwdXi69ce2xreEKIxVWuS6oagT2VV9ULOZmjWC1dZxqppi"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
 
-      {/* Unlocked */}
-      {unlocked.length > 0 && (
-        <div>
-          <h2 className={`text-sm font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 ${textSecondary}`}>
-            <Star className="h-4 w-4 text-amber-500" /> Unlocked
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Achievements Bento Grid */}
+        <section>
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight text-on-surface">Achievements</h2>
+              <p className="text-on-surface-variant mt-1">Milestones on your journey to peak productivity.</p>
+            </div>
+            <button className="text-primary font-bold text-sm flex items-center group">
+              View All Gallery 
+              <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {/* Unlocked Achievements */}
             {unlocked.map((ach) => (
-              <div key={ach.id} className={`rounded-2xl border p-5 ${cardBg} backdrop-blur-sm relative overflow-hidden`}>
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full" />
-                <span className="text-4xl mb-3 block">{ach.icon}</span>
-                <h3 className={`text-base font-bold ${textPrimary}`}>{ach.title}</h3>
-                <p className={`text-sm mt-1 ${textSecondary}`}>{ach.description}</p>
-                <p className={`text-xs mt-2 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                  🏆 Unlocked {ach.unlockedAt ? format(new Date(ach.unlockedAt), 'MMM d, yyyy') : ''}
-                </p>
+              <div key={ach.id} className="glass-card bg-white/70 backdrop-blur-xl beveled-glass p-8 rounded-3xl flex flex-col items-center text-center shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                <div className="w-20 h-20 mb-6 relative flex justify-center items-center">
+                  <div className="absolute inset-0 bg-blue-400/20 blur-xl rounded-full"></div>
+                  <span className="text-5xl drop-shadow-lg z-10 inline-block">{ach.icon}</span>
+                </div>
+                <h3 className="font-bold text-on-surface text-lg">{ach.title}</h3>
+                <p className="text-xs text-on-surface-variant mt-2">{ach.description}</p>
+                <div className="mt-4 text-[10px] font-bold text-primary uppercase bg-primary/10 px-3 py-1 rounded-full">
+                  Unlocked
+                </div>
+              </div>
+            ))}
+
+            {/* Locked Achievements */}
+            {locked.slice(0, Math.max(0, 8 - unlocked.length)).map((ach) => (
+              <div key={ach.id} className="bg-surface-container-low p-8 rounded-3xl flex flex-col items-center text-center opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                <div className="w-20 h-20 mb-6 relative flex justify-center items-center">
+                  <Lock className="text-slate-400 h-10 w-10 absolute z-0 opacity-20" />
+                  <span className="text-5xl drop-shadow-sm z-10 inline-block">{ach.icon}</span>
+                </div>
+                <h3 className="font-bold text-on-surface text-lg">{ach.title}</h3>
+                <p className="text-xs text-on-surface-variant mt-2">{ach.description}</p>
+                <div className="mt-4 text-[10px] font-medium text-slate-500 uppercase">
+                  Locked
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        </section>
 
-      {/* Locked */}
-      {locked.length > 0 && (
-        <div>
-          <h2 className={`text-sm font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 ${textSecondary}`}>
-            <Lock className="h-4 w-4" /> Locked
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {locked.map((ach) => {
-              const prog = getProgress(ach.type);
-              const percent = Math.min(100, Math.round((prog.current / prog.target) * 100));
-              return (
-                <div key={ach.id} className={`rounded-2xl border p-5 ${cardBg} backdrop-blur-sm opacity-70 hover:opacity-100 transition-opacity`}>
-                  <span className="text-4xl mb-3 block grayscale">{ach.icon}</span>
-                  <h3 className={`text-base font-bold ${textPrimary}`}>{ach.title}</h3>
-                  <p className={`text-sm mt-1 ${textSecondary}`}>{ach.description}</p>
-                  <p className={`text-xs mt-1 ${textSecondary}`}>{ach.criteria}</p>
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className={`text-xs ${textSecondary}`}>{prog.current} / {prog.target}</span>
-                      <span className={`text-xs font-bold ${isDark ? 'text-violet-400' : 'text-violet-600'}`}>{percent}%</span>
-                    </div>
-                    <div className={`h-1.5 rounded-full ${isDark ? 'bg-gray-800' : 'bg-slate-100'}`}>
-                      <div className="h-full rounded-full bg-[var(--color-accent)] transition-all" style={{ width: `${percent}%` }} />
-                    </div>
+        {/* Daily Challenges */}
+        <section>
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold tracking-tight text-on-surface">Daily Challenges</h2>
+            <p className="text-on-surface-variant mt-1">Complete these to earn bonus XP today.</p>
+          </div>
+          
+          <div className="space-y-4">
+            {dailyChallenges.length > 0 ? dailyChallenges.map((challenge: any) => (
+              <div key={challenge.id} className={`glass-card bg-white/70 backdrop-blur-xl rounded-2xl p-6 flex items-center justify-between group transition-all hover:bg-white border-l-4 ${challenge.completed ? 'border-green-500' : 'border-primary'}`}>
+                <div className="flex items-center space-x-6">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${challenge.completed ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-primary'}`}>
+                    {challenge.completed ? <CheckCircle2 className="h-6 w-6" /> : <RefreshCw className="h-6 w-6" />}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-on-surface">{challenge.title}</h4>
+                    <p className="text-sm text-on-surface-variant">{challenge.description}</p>
                   </div>
                 </div>
-              );
-            })}
+                <div className="flex items-center space-x-6">
+                  <div className="hidden md:block text-right">
+                    <p className={`text-xs font-bold uppercase tracking-widest ${challenge.completed ? 'text-green-600' : 'text-primary'}`}>
+                      {challenge.completed ? 'Completed' : 'In Progress'}
+                    </p>
+                    <p className="text-sm font-medium text-on-surface-variant">+{challenge.points} XP</p>
+                  </div>
+                  {challenge.completed ? (
+                    <Check className="text-green-600 h-8 w-8" />
+                  ) : (
+                    <div className="text-sm font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                      {challenge.currentCount} / {challenge.targetCount}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )) : (
+               <div className="glass-card rounded-2xl p-6 text-center text-on-surface-variant bg-white/50 backdrop-blur-xl">
+                 No challenges available today. Check back tomorrow!
+               </div>
+            )}
           </div>
-        </div>
-      )}
+        </section>
+
+        {/* Floating Action Chip (Visual Only) */}
+        {!locked.length && (
+          <div className="fixed bottom-32 right-8 z-40">
+            <div className="glass-card beveled-glass rounded-full px-6 py-3 shadow-2xl flex items-center space-x-3 text-primary animate-bounce bg-white/90">
+              <Sparkles className="h-5 w-5" />
+              <span className="font-bold text-sm">All Rewards Unlocked!</span>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

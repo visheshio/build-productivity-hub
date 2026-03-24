@@ -161,10 +161,8 @@ export function Expenses() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className={`text-2xl lg:text-3xl font-bold ${cardTitle}`}>Expense Tracker</h1>
-          <p className={`${subText} mt-1`}>Track your income and expenses</p>
-        </div>
+          <h1 className="apple-title-large">Expense Tracker</h1>
+          <p className="apple-subheadline mt-1">Track your income and expenses</p>
         <div className="flex gap-2">
           <ExportDropdown
             options={[
