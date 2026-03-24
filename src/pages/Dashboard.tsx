@@ -37,29 +37,19 @@ const DEFAULT_WIDGETS = [
 function generateDailyChallenges(state: any): any[] {
   const today = format(new Date(), 'yyyy-MM-dd');
   const challenges = [
-    { title: 'Complete 3 tasks', description: 'Finish 3 tasks from your to-do list', category: 'tasks', targetCount: 3, points: 50 },
     { title: 'Write in your journal', description: 'Add a journal entry today', category: 'journal', targetCount: 1, points: 30 },
-    { title: 'Complete all habits', description: 'Check off all your daily habits', category: 'habits', targetCount: state.habits.filter((h: any) => h.frequency === 'daily').length || 1, points: 40 },
-    { title: 'Focus for 25 minutes', description: 'Complete a Pomodoro session', category: 'pomodoro', targetCount: 1, points: 35 },
-    { title: 'Add a new note', description: 'Capture an idea or thought', category: 'notes', targetCount: 1, points: 20 },
+    { title: 'Complete your daily habits', description: 'Check off your routines today', category: 'habits', targetCount: state.habits.filter((h: any) => h.frequency === 'daily').length || 1, points: 40 },
+    { title: 'Focus for 25 minutes', description: 'Complete a Pomodoro session today', category: 'pomodoro', targetCount: 1, points: 35 },
   ];
-  // Pick 3 unique random challenges
-  const shuffled = [...challenges].sort(() => 0.5 - Math.random());
-  const selected = [];
-  const usedTitles = new Set();
-  for (const c of shuffled) {
-    if (!usedTitles.has(c.title) && selected.length < 3) {
-      selected.push(c);
-      usedTitles.add(c.title);
-    }
-  }
-  return selected.map((c) => ({
+  
+  // Return these 3 exact, distinct challenges every day to avoid repetitive/similar tasks
+  return challenges.map((c) => ({
     id: uuidv4(), ...c, currentCount: 0, completed: false, date: today,
   }));
 }
 
 export function Dashboard() {
-  const { state, dispatch } = useApp();
+  const { state, dispatch, isLoading } = useApp();
   const { theme } = useTheme();
   const { user } = useAuth();
   const isDark = theme === 'dark';
@@ -81,11 +71,13 @@ export function Dashboard() {
 
   // Generate daily challenges if needed
   useEffect(() => {
+    if (isLoading) return;
     const today = format(new Date(), 'yyyy-MM-dd');
-    if (state.dailyChallenges.length === 0 || state.dailyChallenges[0]?.date !== today) {
+    const hasTodayChallenges = state.dailyChallenges.some(c => c.date === today);
+    if (!hasTodayChallenges) {
       dispatch({ type: 'SET_DAILY_CHALLENGES', payload: generateDailyChallenges(state) });
     }
-  }, []);
+  }, [isLoading]);
 
   // Update challenge progress
   useEffect(() => {
@@ -94,9 +86,6 @@ export function Dashboard() {
       if (challenge.date !== today || challenge.completed) return;
       let count = 0;
       switch (challenge.category) {
-        case 'tasks':
-          count = state.todos.filter((t) => t.status === 'completed').length;
-          break;
         case 'journal':
           count = state.journalEntries.filter((j) => format(new Date(j.date), 'yyyy-MM-dd') === today).length;
           break;
@@ -105,9 +94,6 @@ export function Dashboard() {
           break;
         case 'pomodoro':
           count = state.pomodoroSessions.filter((p) => p.type === 'work' && format(new Date(p.completedAt), 'yyyy-MM-dd') === today).length;
-          break;
-        case 'notes':
-          count = state.notes.filter((n) => format(new Date(n.createdAt), 'yyyy-MM-dd') === today).length;
           break;
       }
       if (count !== challenge.currentCount) {
@@ -422,9 +408,10 @@ export function Dashboard() {
             <Zap className="h-5 w-5" style={{ color: 'var(--color-accent)' }} /> Daily Challenges
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {state.dailyChallenges.filter((challenge, index, self) => 
-              self.findIndex(c => c.title === challenge.title) === index
-            ).map((challenge) => (
+            {state.dailyChallenges
+              .filter(c => c.date === format(new Date(), 'yyyy-MM-dd'))
+              .filter((challenge, index, self) => self.findIndex(c => c.title === challenge.title) === index)
+              .map((challenge) => (
               <div key={challenge.id} className="p-4 rounded-xl"
                 style={challenge.completed
                   ? { background: 'var(--color-success-bg)', border: '1px solid var(--color-success)', borderColor: isDark ? 'rgba(48,209,88,0.3)' : 'rgba(52,199,89,0.3)' }

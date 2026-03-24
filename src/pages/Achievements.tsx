@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import toast from 'react-hot-toast';
+import { format } from 'date-fns';
 
 const ACHIEVEMENT_CHECKERS: Record<string, (state: any) => boolean> = {
   streak_master: (s) => s.habits.some((h: any) => h.streakCount >= 30),
@@ -34,7 +35,10 @@ export function Achievements() {
   const unlocked = state.achievements.filter((a) => a.unlockedAt);
   const locked = state.achievements.filter((a) => !a.unlockedAt);
   
-  const dailyChallenges = state.dailyChallenges || [];
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const dailyChallenges = (state.dailyChallenges || [])
+    .filter((c: any) => c.date === today)
+    .filter((challenge: any, index: number, self: any[]) => self.findIndex(c => c.title === challenge.title) === index);
 
   // Determine user level based on XP (mock calculation for UI)
   const totalTasks = state.todos.filter((t) => t.status === 'completed').length;
