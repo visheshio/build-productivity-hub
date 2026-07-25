@@ -1,6 +1,6 @@
 # Productivity Hub
 
-A comprehensive, beautifully designed web application to manage all aspects of your personal productivity. Built with a stunning Apple iOS-inspired design language, featuring smooth physics-based animations, and backed by a robust Supabase backend.
+A Comprehensive, beautifully designed web application to manage all aspects of your personal productivity. Built with a stunning Apple iOS-inspired design language, featuring smooth physics-based animations, and backed by a robust Supabase backend.
 
 ## ✨ Features
 
